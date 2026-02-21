@@ -1,7 +1,7 @@
 # depslib dependency file v1.0
-1771709772 source:c:\users\jeremi\desktop\easyrider\easyrider\main.cpp
+1771714780 source:c:\users\jeremi\desktop\easyrider\easyrider\main.cpp
 	<SFML/Graphics.hpp>
-	"Infrastructure.h"
+	"simulation.h"
 
 1758144516 c:\users\jeremi\desktop\easyrider\sfml-3.0.2-windows-gcc-14.2.0-mingw-64-bit\sfml-3.0.2\include\sfml\graphics.hpp
 	<SFML/Graphics/BlendMode.hpp>
@@ -524,12 +524,20 @@
 1771706313 c:\users\jeremi\desktop\easyrider\easyrider\road.h
 	<SFML/Graphics.hpp>
 
-1771706093 c:\users\jeremi\desktop\easyrider\easyrider\intersection.h
+1771711398 c:\users\jeremi\desktop\easyrider\easyrider\intersection.h
 	<SFML/Graphics.hpp>
 
-1771709798 c:\users\jeremi\desktop\easyrider\easyrider\infrastructure.h
+1771714793 c:\users\jeremi\desktop\easyrider\easyrider\infrastructure.h
 	<SFML/Graphics.hpp>
 	"Road.h"
 	"Intersection.h"
 	<cmath>
+
+1771714104 c:\users\jeremi\desktop\easyrider\easyrider\simulation.h
+	<SFML/Graphics.hpp>
+	"infrastructure.h"
+	"vechicle.h"
+
+1771714753 c:\users\jeremi\desktop\easyrider\easyrider\vechicle.h
+	<SFML/Graphics.hpp>
 

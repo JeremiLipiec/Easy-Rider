@@ -13,19 +13,25 @@ class Infrastructure {
 
     float drawing_start_x = 100.f;
     float drawing_start_y = 100.f;
-    float intersection_distance = 100.f;
+    float intersection_distance = 300.f;
 
     int intersection_count; // 4
     int map_size;
-    float road_thickness = 20.f;
-    float intersection_size = 10.f;
+    float road_thickness = 70.f;
+    float intersection_size = 70.f;
 
 
     vector<vector<int>> infrastructure_map; // macierz sasiedztwa
     vector<Road> roads;
     vector<Intersection> intersections;
 
+    Infrastructure(){}
+
     Infrastructure(int _intersection_count){
+        setup(_intersection_count);
+    }
+
+    void setup(int _intersection_count){
         intersection_count = _intersection_count;
         map_size = sqrt(intersection_count);
         infrastructure_map = vector<vector<int>>(intersection_count, vector<int>(intersection_count, 0));
@@ -44,13 +50,18 @@ class Infrastructure {
 
         for(int y = 0; y < intersection_count; y ++){
             for(int x = 0; x < intersection_count; x ++){
-                if(infrastructure_map[x][y] == 1)
+                if(infrastructure_map[x][y] == 1){
                     roads.push_back(Road(intersections[x].id, intersections[y].id, 50));
+                    intersections[x].used = true;
+                    intersections[y].used = true;
+                }
             }
         }
     }
 
     void draw_map(sf::RenderWindow& window){
+        sf::RectangleShape intersection_shape({intersection_size, intersection_size});
+
         // draw roads
         for(Road& r : roads){
             // calculate distance between intersections
@@ -67,39 +78,36 @@ class Infrastructure {
             float angle_start_position_shift_x = angle_shift_x;
             float angle_start_position_shift_y = angle_shift_y;
 
-            float line_start_pos_x = intersections[r.intersection_a_id].position.x + intersection_size + angle_start_position_shift_x;
-            float line_start_pos_y = intersections[r.intersection_a_id].position.y + intersection_size - angle_start_position_shift_y;
+            float line_start_pos_x = intersections[r.intersection_a_id].position.x + intersection_size / 2 + angle_start_position_shift_x;
+            float line_start_pos_y = intersections[r.intersection_a_id].position.y + intersection_size / 2 - angle_start_position_shift_y;
 
             sf::Vector2f line_start_position(line_start_pos_x, line_start_pos_y);
 
-            sf::RectangleShape line({road_length, road_thickness});
-            line.setPosition(line_start_position);
-            line.setRotation(intersections_angle);
-            line.setFillColor(sf::Color::Green);
-            window.draw(line);
+            // draw the rectangle
+            sf::RectangleShape road_shape({road_length, road_thickness});
+            road_shape.setFillColor(sf::Color(100, 100, 100));
+            road_shape.setPosition(line_start_position);
+            road_shape.setRotation(intersections_angle);
+            window.draw(road_shape);
         }
 
         // draw intersections
-        for(int y = 0; y < map_size; y ++){
-            for(int x = 0; x < map_size; x ++){
-                sf::CircleShape shape(intersection_size);
-                shape.setPosition(intersections[x + y * map_size].position);
-                if(infrastructure_map[x][y] > 0){
-                    shape.setFillColor(sf::Color::Blue);
-                }else{
-                    shape.setFillColor(sf::Color::Red);
-                }
-                window.draw(shape);
+        for(int i = 0; i < intersection_count; i++){
+            intersection_shape.setPosition(intersections[i].position);
 
-                int px = intersections[x + y * map_size].position.x;
-                int py = intersections[x + y * map_size].position.y;
-
-                text.setString(to_string(intersections[x + y * map_size].id));
-                text.setPosition({px, py});
-                text.setCharacterSize(12);
-                text.setFillColor(sf::Color::Cyan);
-                window.draw(text);
+            if(intersections[i].used){
+                intersection_shape.setFillColor(sf::Color(90, 90, 90));
+            }else{
+                intersection_shape.setFillColor(sf::Color(20, 20, 20));
             }
+
+            window.draw(intersection_shape);
+
+            text.setString(to_string(intersections[i].id));
+            text.setPosition({intersections[i].position.x, intersections[i].position.y});
+            text.setCharacterSize(24);
+            text.setFillColor(sf::Color::Black);
+            window.draw(text);
         }
     }
 };
