@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-#include "Road.h"
+#include "Infrastructure.h"
 
 using namespace std;
 
@@ -10,6 +10,8 @@ string program_name = "Easy Rider Jeremi Lipiec 348407";
 sf::RenderWindow window;
 sf::Vector2i mouse_position;
 int x = 0;
+Infrastructure infrastructure(9);
+
 
 void init_window(unsigned int size_x, unsigned int size_y){
     window.create(sf::VideoMode({size_x, size_y}), program_name);
@@ -34,18 +36,17 @@ int main()
     }
 }
 
-Road road1(1, 1, 1, false, 1, 10);
-
 void setup(){
+    infrastructure.infrastructure_map[3][0] = 1;
+    infrastructure.generate_map();
 
 }
 
 void draw(){
+    infrastructure.draw_map(window);
 
-    road1.draw(window);
-
-    sf::CircleShape shape(10.f);
-    shape.setPosition(sf::Vector2f(mouse_position.x - 10.f, mouse_position.y - 10.f));
+    sf::CircleShape shape(5.f);
+    shape.setPosition(sf::Vector2f(mouse_position.x - 5.f, mouse_position.y - 5.f));
     shape.setFillColor(sf::Color::Green);
     window.draw(shape);
 }
