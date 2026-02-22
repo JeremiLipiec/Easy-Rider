@@ -108,6 +108,16 @@ class Infrastructure {
             text.setCharacterSize(24);
             text.setFillColor(sf::Color::Black);
             window.draw(text);
+
+
+            sf::FloatRect boundingBox = intersection_shape.getGlobalBounds();
+            sf::RectangleShape debugRect;
+            debugRect.setPosition(boundingBox.position);
+            debugRect.setSize(boundingBox.size);
+            debugRect.setFillColor(sf::Color::Transparent);
+            debugRect.setOutlineColor(sf::Color::Cyan);
+            debugRect.setOutlineThickness(1.0f);
+            window.draw(debugRect);
         }
     }
 };
