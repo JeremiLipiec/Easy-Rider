@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "Simulation.h"
+#include "GuiManager.h"
 
 using namespace std;
 
@@ -9,7 +10,9 @@ void draw();
 string program_name = "Easy Rider Jeremi Lipiec 348407";
 sf::RenderWindow window;
 sf::Vector2i mouse_position;
+
 Simulation* simulation;
+GuiManager* gui_manager;
 
 int main()
 {
@@ -34,6 +37,7 @@ int main()
 }
 
 void setup(){
+    gui_manager = GuiManager::getInstance();
     simulation = Simulation::getInstance(9);
 
     simulation->infrastructure.infrastructure_map[3][0] = 1;

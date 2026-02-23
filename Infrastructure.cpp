@@ -1,8 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include "Infrastructure.h"
+#include "GuiManager.h"
 
 using namespace std;
+
+    Infrastructure::Infrastructure(){}
 
     Infrastructure::Infrastructure(int _intersection_count){
         Setup(_intersection_count);
@@ -83,16 +86,7 @@ using namespace std;
 
             window.draw(intersection_shape);
 
-            //sf::Font font;
-            //font.openFromFile("C:/Windows/Fonts/arial.ttf");
-            //sf::Text text(font);
-            //text.setString(to_string(intersections.size()));
-            //text.setPosition({intersections[i].position.x, intersections[i].position.y});
-            //text.setPosition({100, 100});
-            //text.setCharacterSize(24);
-            //text.setFillColor(sf::Color::Cyan);
-            //window.draw(text);
-
+            GuiManager::getInstance()->DrawText(to_string(i), intersections[i].position, window);
 
             //sf::FloatRect boundingBox = intersection_shape.getGlobalBounds();
             //sf::RectangleShape debugRect;

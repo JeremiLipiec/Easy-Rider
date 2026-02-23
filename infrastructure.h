@@ -26,7 +26,7 @@ public:
     vector<Road> roads;
     vector<Intersection> intersections;
 
-    Infrastructure(){}
+    Infrastructure();
 
     Infrastructure(int _intersection_count);
 
