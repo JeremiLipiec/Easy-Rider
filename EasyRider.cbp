@@ -44,12 +44,19 @@
 		<Linker>
 			<Add directory="C:/SFML-3.0.2-windows-gcc-14.2.0-mingw-64-bit/SFML-3.0.2/lib" />
 		</Linker>
+		<Unit filename="GuiManager.cpp" />
+		<Unit filename="GuiManager.h" />
+		<Unit filename="Infrastructure.cpp" />
+		<Unit filename="Infrastructure.h" />
 		<Unit filename="Intersection.h" />
 		<Unit filename="Road.h" />
-		<Unit filename="infrastructure.h" />
+		<Unit filename="Simulation.cpp" />
+		<Unit filename="Simulation.h" />
+		<Unit filename="Traffic.cpp" />
+		<Unit filename="Traffic.h" />
+		<Unit filename="Vehicle.cpp" />
+		<Unit filename="Vehicle.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="simulation.h" />
-		<Unit filename="vechicle.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

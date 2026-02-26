@@ -7,43 +7,34 @@ using namespace std;
 void setup();
 void draw();
 
-string program_name = "Easy Rider Jeremi Lipiec 348407";
-sf::RenderWindow window;
-sf::Vector2i mouse_position;
-
 Simulation* simulation;
 GuiManager* gui_manager;
 
 int main()
 {
-    window.create(sf::VideoMode({1920, 1080}), program_name);
-    window.setFramerateLimit(60);
+    gui_manager = GuiManager::getInstance();
+    gui_manager->SetupWindow();
 
     setup();
 
-    while (window.isOpen())
+    while (gui_manager->window.isOpen())
     {
-        while (const optional event = window.pollEvent())
-        {
-            if (event->is<sf::Event::Closed>())
-                window.close();
-        }
-
-        mouse_position = sf::Mouse::getPosition(window);
-        window.clear();
+        gui_manager->window.clear();
         draw();
-        window.display();
+        gui_manager->window.display();
     }
 }
 
 void setup(){
-    gui_manager = GuiManager::getInstance();
     simulation = Simulation::getInstance(9);
 
     simulation->infrastructure.infrastructure_map[3][0] = 1;
     simulation->infrastructure.infrastructure_map[3][0] = 1;
     simulation->infrastructure.infrastructure_map[1][0] = 1;
     simulation->infrastructure.infrastructure_map[1][4] = 1;
+    simulation->infrastructure.infrastructure_map[4][7] = 1;
+    simulation->infrastructure.infrastructure_map[7][8] = 1;
+    simulation->infrastructure.infrastructure_map[8][5] = 1;
 
     simulation->infrastructure.GenerateMap();
 
@@ -51,11 +42,9 @@ void setup(){
 }
 
 void draw(){
-    simulation->Update();
-    simulation->Draw(window);
+    gui_manager->Update();
+    gui_manager->DrawMouseCursor();
 
-    sf::CircleShape shape(5.f);
-    shape.setPosition(sf::Vector2f(mouse_position.x - 5.f, mouse_position.y - 5.f));
-    shape.setFillColor(sf::Color::Blue);
-    window.draw(shape);
+    simulation->Update();
+    simulation->Draw();
 }

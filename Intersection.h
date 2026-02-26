@@ -1,5 +1,4 @@
 #pragma once
-
 #include <SFML/Graphics.hpp>
 
 using namespace std;
@@ -10,14 +9,15 @@ class Intersection {
     public:
 
     int id;
-    sf::Vector2f position;
+    float intersection_size = 70.f;
+    sf::Vector2f position; // center point of intersection
     bool has_traffic_lights;
     bool used;
+    sf::FloatRect boundingBox;
 
-    Intersection(int _id, sf::Vector2f _position, bool _has_traffic_lights){
-        id = _id;
-        position = _position;
-        has_traffic_lights = _has_traffic_lights;
-        used = false;
-    }
+    Intersection(int _id, sf::Vector2f _position, bool _has_traffic_lights);
+
+    void Update();
+
+    void Draw();
 };

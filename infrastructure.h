@@ -18,9 +18,6 @@ public:
 
     int intersection_count; // 4
     int map_size;
-    float road_thickness = 70.f;
-    float intersection_size = 70.f;
-
 
     vector<vector<int>> infrastructure_map; // macierz sasiedztwa
     vector<Road> roads;
@@ -28,15 +25,13 @@ public:
 
     Infrastructure();
 
-    Infrastructure(int _intersection_count);
-
     void Setup(int _intersection_count);
 
     void Update();
 
     void GenerateMap();
 
-    void Draw(sf::RenderWindow& window);
+    void Draw();
 };
 
 

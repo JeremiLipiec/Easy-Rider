@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "Simulation.h"
+#include "GuiManager.h"
 
 using namespace std;
 
@@ -13,12 +14,14 @@ Simulation* Simulation::getInstance(int _intersection_count) {
 }
 
 Simulation::Simulation(int _intersection_count) {
+    infrastructure = Infrastructure();
     infrastructure.Setup(_intersection_count);
 }
 
-void Simulation::Draw(sf::RenderWindow& window){
-    infrastructure.Draw(window);
-    traffic.Draw(window);
+void Simulation::Draw(){
+    infrastructure.Draw();
+    traffic.Update(); // move to update function
+    traffic.Draw();
 }
 
 void Simulation::AddVehicle(float max_speed, float length, float accerleration, float breaking_force, int start_intersection_id, int finish_intersection_id){
@@ -26,5 +29,5 @@ void Simulation::AddVehicle(float max_speed, float length, float accerleration, 
 }
 
 void Simulation::Update(){
-    traffic.Update();
+
 }

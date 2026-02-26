@@ -20,7 +20,7 @@ public:
 
     static Simulation* getInstance(int _intersection_count = 0);
 
-    void Draw(sf::RenderWindow& window);
+    void Draw();
 
     void Update();
 

@@ -18,8 +18,30 @@ GuiManager* GuiManager::getInstance() {
     return FInstance;
 }
 
-void GuiManager::DrawText(string text, sf::Vector2f position, sf::RenderWindow& window){
+void GuiManager::SetupWindow(){
+    window.create(sf::VideoMode({1920, 1080}), "Easy Rider Jeremi Lipiec 348407");
+    window.setFramerateLimit(60);
+}
+
+void GuiManager::DrawText(string text, sf::Vector2f position){
     text_object.setString(text);
     text_object.setPosition(position);
     window.draw(text_object);
+}
+
+void GuiManager::Update(){
+    mouse_position = sf::Mouse::getPosition(window);
+
+    while (const optional event = window.pollEvent())
+    {
+        if (event->is<sf::Event::Closed>())
+            window.close();
+    }
+}
+
+void GuiManager::DrawMouseCursor(){
+    sf::CircleShape shape(5.f);
+    shape.setPosition(sf::Vector2f(mouse_position.x - 5.f, mouse_position.y - 5.f));
+    shape.setFillColor(sf::Color::Blue);
+    window.draw(shape);
 }
