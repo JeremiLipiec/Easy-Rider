@@ -48,7 +48,9 @@
 		<Unit filename="GuiManager.h" />
 		<Unit filename="Infrastructure.cpp" />
 		<Unit filename="Infrastructure.h" />
+		<Unit filename="Intersection.cpp" />
 		<Unit filename="Intersection.h" />
+		<Unit filename="Road.cpp" />
 		<Unit filename="Road.h" />
 		<Unit filename="Simulation.cpp" />
 		<Unit filename="Simulation.h" />

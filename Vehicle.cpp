@@ -139,6 +139,7 @@ void Vehicle::Update(){
     // apply velocity
     sf::Vector2f velocity = sf::Vector2f(std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())) * speed;
     position += velocity;
+    position +=
 }
 
 void Vehicle::Draw(){
