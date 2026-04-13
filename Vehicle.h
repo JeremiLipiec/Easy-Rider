@@ -20,6 +20,10 @@ private:
     sf::Angle entry_angle;
     sf::Angle exit_angle;
     sf::Vector2f entry_position;
+    sf::Vector2f exit_point;
+    sf::Vector2f control_point;
+    float turn_t = 0.f;
+    float turn_arc_length = 1.f;
     bool is_turning = false;
 
 public:

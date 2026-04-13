@@ -19,7 +19,15 @@ void Vehicle::Setup(){
     speed = 0;
     path = CalculatePath();
     AdvanceToNextIntersection();
-    position = Simulation::getInstance()->infrastructure.intersections[current_intersection_id].position;
+
+    Intersection& current = Simulation::getInstance()->infrastructure.intersections[current_intersection_id];
+    Intersection& next = Simulation::getInstance()->infrastructure.intersections[next_intersection_id];
+
+    sf::Vector2f dir = next.position - current.position;
+    dir = dir / dir.length();
+    sf::Vector2f right = {-dir.y, dir.x};
+
+    position = current.position + right * 17.5f;
 }
 
 // TODO: replace with proper pathfinding algo
@@ -73,58 +81,76 @@ void Vehicle::Update(){
     Intersection& next_intersection = Simulation::getInstance()->infrastructure.intersections[next_intersection_id];
     Intersection& current_intersection = Simulation::getInstance()->infrastructure.intersections[current_intersection_id];
 
-    // update speed
     if (speed < max_speed) speed += accerleration;
     if (speed > max_speed) speed = max_speed;
 
-    // is on the next intersection
+    bool bezier_active = false;
+
     if((bool)boundingBox.findIntersection(next_intersection.boundingBox)){
-        // arrived at the finish intersection
         if(path.size() <= 1){
             return;
         }
 
-        // just entered the intersection, save initial position and angle
         if(!is_turning){
             is_turning = true;
             entry_angle = moving_angle;
             entry_position = position;
+            turn_t = 0.f;
 
-            // calculate exit angle and position
             if (path.size() >= 2) {
-                sf::Vector2f after_next_intersection_position = Simulation::getInstance()->infrastructure.intersections[path[1]].position;
-                exit_angle = (after_next_intersection_position - next_intersection.position).angle();
+                sf::Vector2f after_next_pos = Simulation::getInstance()->infrastructure.intersections[path[1]].position;
+                exit_angle = (after_next_pos - next_intersection.position).angle();
+
+                sf::Vector2f entry_dir = {std::cos(entry_angle.asRadians()), std::sin(entry_angle.asRadians())};
+                sf::Vector2f exit_dir = {std::cos(exit_angle.asRadians()), std::sin(exit_angle.asRadians())};
+                sf::Vector2f exit_right = {-exit_dir.y, exit_dir.x};
+
+                exit_point = next_intersection.position + exit_right * 17.5f + exit_dir * (next_intersection.intersection_size / 2.f);
+
+                float det = entry_dir.x * exit_dir.y - exit_dir.x * entry_dir.y;
+                sf::Vector2f delta = exit_point - entry_position;
+
+                if (std::abs(det) < 0.01f) {
+                    control_point = (entry_position + exit_point) / 2.f;
+                } else {
+                    float tp = (delta.x * exit_dir.y - delta.y * exit_dir.x) / det;
+                    control_point = entry_position + entry_dir * tp;
+                }
+
+                turn_arc_length = (control_point - entry_position).length() + (exit_point - control_point).length();
+                if (turn_arc_length < 0.001f) turn_arc_length = 1.f;
             }
         }
 
-        float dist_from_entry = (position - entry_position).length();
-        float t = dist_from_entry / (next_intersection.intersection_size);
+        turn_t += speed / turn_arc_length;
 
-        // clamp value
-        if (t < 0.0f) t = 0.0f;
-        if (t > 1.0f) t = 1.0f;
-
-        // values to interpolate
-        float start_angle_deg = entry_angle.asDegrees();
-        float end_angle_deg = exit_angle.asDegrees();
-
-        if (end_angle_deg - start_angle_deg > 180) start_angle_deg += 360;
-        if (end_angle_deg - start_angle_deg < -180) start_angle_deg -= 360;
-
-        moving_angle = sf::degrees(start_angle_deg + (end_angle_deg - start_angle_deg) * t);
+        if (turn_t < 1.f) {
+            float t = turn_t;
+            position = (1.f-t)*(1.f-t)*entry_position + 2.f*t*(1.f-t)*control_point + t*t*exit_point;
+            sf::Vector2f tangent = (1.f-t)*(control_point-entry_position) + t*(exit_point-control_point);
+            if (tangent.length() > 0.001f) moving_angle = tangent.angle();
+            bezier_active = true;
+        } else {
+            sf::Vector2f tangent = exit_point - control_point;
+            if (tangent.length() > 0.001f) moving_angle = tangent.angle();
+        }
 
     }else{
-        // just left the intersection
         if (is_turning) {
             AdvanceToNextIntersection();
-            sf::Vector2f target = next_intersection.position;
-            //float rad = exit_angle.asRadians();
-            //sf::Vector2f forward_vec(std::cos(rad), std::sin(rad));
 
-            //position = target + forward_vec * (half_size + car_length / 2.0f);
+            Intersection& new_current = Simulation::getInstance()->infrastructure.intersections[current_intersection_id];
+            Intersection& new_next = Simulation::getInstance()->infrastructure.intersections[next_intersection_id];
+
+            sf::Vector2f road_dir = new_next.position - new_current.position;
+            road_dir = road_dir / road_dir.length();
+            sf::Vector2f right = {-road_dir.y, road_dir.x};
+
+            sf::Vector2f to_pos = position - new_current.position;
+            float along = to_pos.x * road_dir.x + to_pos.y * road_dir.y;
+            position = new_current.position + road_dir * along + right * 17.5f;
 
             moving_angle = exit_angle;
-
             is_turning = false;
         }else{
             if (path.size() >= 2) {
@@ -136,10 +162,10 @@ void Vehicle::Update(){
 
     debug_text = to_string(path.size());
 
-    // apply velocity
-    sf::Vector2f velocity = sf::Vector2f(std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())) * speed;
-    position += velocity;
-    position +=
+    if (!bezier_active) {
+        sf::Vector2f velocity = sf::Vector2f(std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())) * speed;
+        position += velocity;
+    }
 }
 
 void Vehicle::Draw(){
