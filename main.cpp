@@ -26,16 +26,16 @@ int main()
 }
 
 void setup(){
-    simulation = Simulation::getInstance(9);
+    simulation = Simulation::getInstance(16);
 
-    simulation->infrastructure.infrastructure_map[3][0] = 1;
-    simulation->infrastructure.infrastructure_map[3][0] = 1;
-    simulation->infrastructure.infrastructure_map[1][0] = 1;
-    simulation->infrastructure.infrastructure_map[1][4] = 1;
-    simulation->infrastructure.infrastructure_map[4][7] = 1;
-    simulation->infrastructure.infrastructure_map[7][8] = 1;
-    simulation->infrastructure.infrastructure_map[8][5] = 1;
+    //simulation->infrastructure.infrastructure_map[3][0] = 1;
+    //simulation->infrastructure.infrastructure_map[1][0] = 1;
+    //simulation->infrastructure.infrastructure_map[1][4] = 1;
+    //simulation->infrastructure.infrastructure_map[4][7] = 1;
+    //simulation->infrastructure.infrastructure_map[7][8] = 1;
+    //simulation->infrastructure.infrastructure_map[8][5] = 1;
 
+    simulation->infrastructure.FillMap();
     simulation->infrastructure.GenerateMap();
 
     simulation->AddVehicle(2.f, 35.f, .1f, 1.f, 0, 1);
