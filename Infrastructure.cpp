@@ -16,18 +16,19 @@ void Infrastructure::Setup(int _intersection_count){
 void Infrastructure::FillMap(){
     int col = 0, row = 0, x = 0, a = 0;
 
-    // horizontal roads
     for(row = 0; row < map_size; row++){
         a = map_size * row;
-        for(x = 0; x < map_size - 1; x++)
+        for(x = 0; x < map_size - 1; x++){
             infrastructure_map[a + x][a + x + 1] = 1;
+            infrastructure_map[a + x + 1][a + x] = 1;
+        }
     }
 
-    // vertical roads
     for(col = 0; col < map_size; col++){
         for(x = 0; x < map_size - 1; x++){
             a = col + x * map_size;
             infrastructure_map[a][a + map_size] = 1;
+            infrastructure_map[a + map_size][a] = 1;
         }
     }
 }
@@ -54,7 +55,9 @@ void Infrastructure::FillMap(){
     }
 
     void Infrastructure::Update(){
-        // to be implemented: update traffic signals change ect
+        for(Intersection& i : intersections){
+            i.Update();
+        }
     }
 
     void Infrastructure::Draw(){

@@ -1,4 +1,7 @@
 #include <SFML/Graphics.hpp>
+#include <queue>
+#include <limits>
+#include <algorithm>
 #include "Vehicle.h"
 #include "Simulation.h"
 #include "Intersection.h"
@@ -18,6 +21,7 @@ Vehicle::Vehicle(float _max_speed, float _car_length, float _accerleration, floa
 void Vehicle::Setup(){
     speed = 0;
     path = CalculatePath();
+    if(path.size() < 2) return;
     AdvanceToNextIntersection();
 
     Intersection& current = Simulation::getInstance()->infrastructure.intersections[current_intersection_id];
@@ -30,16 +34,49 @@ void Vehicle::Setup(){
     position = current.position + right * 17.5f;
 }
 
-// TODO: replace with proper pathfinding algo
 vector<int> Vehicle::CalculatePath(){
+    auto& infra = Simulation::getInstance()->infrastructure;
+    int n = infra.intersection_count;
+
+    vector<float> dist(n, 99999999);
+    vector<int> came_from(n, -1);
+    vector<bool> visited(n, false);
+
+    dist[start_intersection_id] = 0.f;
+
+    priority_queue<pair<float,int>vector<pair<float,int>>, greater<pair<float,int>>> pq;
+    pq.push({0.f, start_intersection_id});
+
+    while(!pq.empty()){
+        auto [d, current] = pq.top();
+        pq.pop();
+
+        if(visited[current]) continue;
+        visited[current] = true;
+
+        if(current == finish_intersection_id) break;
+
+        for(int next = 0; next < n; next++){
+            if(infra.infrastructure_map[current][next] != 1 || visited[next]) continue;
+
+            float new_dist = dist[current] + 1.f;
+
+            if(new_dist < dist[next]){
+                came_from[next] = current;
+                dist[next] = new_dist;
+                pq.push({new_dist, next});
+            }
+        }
+    }
+
     vector<int> result_path;
-    result_path.push_back(3);
-    result_path.push_back(0);
-    result_path.push_back(1);
-    result_path.push_back(4);
-    result_path.push_back(7);
-    result_path.push_back(8);
-    result_path.push_back(5);
+    if(dist[finish_intersection_id] == 99999999)
+        return result_path;
+
+    for(int cur = finish_intersection_id; cur != -1; cur = came_from[cur])
+        result_path.push_back(cur);
+
+    reverse(result_path.begin(), result_path.end());
     return result_path;
 }
 
@@ -88,7 +125,16 @@ void Vehicle::Update(){
 
     if((bool)boundingBox.findIntersection(next_intersection.boundingBox)){
         if(path.size() <= 1){
-            return;
+            int n = Simulation::getInstance()->infrastructure.intersection_count;
+            int prev = current_intersection_id;
+            start_intersection_id = finish_intersection_id;
+            finish_intersection_id = rand() % (n - 1);
+            if(finish_intersection_id >= start_intersection_id) finish_intersection_id++;
+            auto& infra = Simulation::getInstance()->infrastructure;
+            infra.infrastructure_map[start_intersection_id][prev] = 0;
+            path = CalculatePath();
+            infra.infrastructure_map[start_intersection_id][prev] = 1;
+            if(path.size() < 2){ speed = 0; return; }
         }
 
         if(!is_turning){
@@ -153,14 +199,12 @@ void Vehicle::Update(){
             moving_angle = exit_angle;
             is_turning = false;
         }else{
-            if (path.size() >= 2) {
-                sf::Vector2f moving_direction = next_intersection.position - current_intersection.position;
-                moving_angle = moving_direction.angle();
-            }
+            sf::Vector2f moving_direction = next_intersection.position - current_intersection.position;
+            moving_angle = moving_direction.angle();
         }
     }
 
-    debug_text = to_string(path.size());
+    debug_text = to_string(finish_intersection_id);
 
     if (!bezier_active) {
         sf::Vector2f velocity = sf::Vector2f(std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())) * speed;

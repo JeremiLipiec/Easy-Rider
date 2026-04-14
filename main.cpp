@@ -1,4 +1,6 @@
 #include <SFML/Graphics.hpp>
+#include <cstdlib>
+#include <ctime>
 #include "Simulation.h"
 #include "GuiManager.h"
 
@@ -12,6 +14,8 @@ GuiManager* gui_manager;
 
 int main()
 {
+    srand(time(nullptr));
+
     gui_manager = GuiManager::getInstance();
     gui_manager->SetupWindow();
 
@@ -26,7 +30,8 @@ int main()
 }
 
 void setup(){
-    simulation = Simulation::getInstance(16);
+    int intersection_count = 16;
+    simulation = Simulation::getInstance(intersection_count);
 
     //simulation->infrastructure.infrastructure_map[3][0] = 1;
     //simulation->infrastructure.infrastructure_map[1][0] = 1;
@@ -38,7 +43,14 @@ void setup(){
     simulation->infrastructure.FillMap();
     simulation->infrastructure.GenerateMap();
 
-    simulation->AddVehicle(2.f, 35.f, .1f, 1.f, 0, 1);
+    int start_id, end_id;
+
+    for(int i = 0; i < 1; i++){
+        start_id = rand() % intersection_count;
+        end_id = rand() % (intersection_count - 1);
+        if(end_id >= start_id) end_id++;
+        simulation->AddVehicle(2.f, 35.f, .1f, 1.f, start_id, end_id);
+    }
 }
 
 void draw(){

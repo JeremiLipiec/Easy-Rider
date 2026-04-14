@@ -29,5 +29,5 @@ void Simulation::AddVehicle(float max_speed, float length, float accerleration, 
 }
 
 void Simulation::Update(){
-
+    infrastructure.Update();
 }
