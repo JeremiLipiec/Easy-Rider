@@ -45,11 +45,11 @@ void setup(){
 
     int start_id, end_id;
 
-    for(int i = 0; i < 1; i++){
+    for(int i = 0; i < 20; i++){
         start_id = rand() % intersection_count;
         end_id = rand() % (intersection_count - 1);
         if(end_id >= start_id) end_id++;
-        simulation->AddVehicle(2.f, 35.f, .1f, 1.f, start_id, end_id);
+        simulation->AddVehicle(2.f, 35.f, .05f, .1f, start_id, end_id);
     }
 }
 

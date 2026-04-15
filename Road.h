@@ -11,9 +11,14 @@ class Road {
 
     int intersection_a_id;
     int intersection_b_id;
-    float speed_limit;
+    float speed_limit, road_length;
+    sf::FloatRect boundingBox;
+    sf::Vector2f line_start_position;
+    sf::Angle intersections_angle;
 
     Road(int _intersection_a_id, int _intersection_b_id, float _speed_limit);
+
+    void Setup();
 
     void Update();
 

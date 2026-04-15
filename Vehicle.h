@@ -4,9 +4,9 @@
 
 using namespace std;
 
-class Vehicle{
+class Vehicle
+{
 private:
-
     // list of intersection ids
     vector<int> path;
     int current_intersection_id;
@@ -20,13 +20,13 @@ private:
     sf::Vector2f control_point;
     float turn_t = 0.f;
     float turn_arc_length = 1.f;
+    float turn_speed_limit = 0.f;
     bool is_turning = false;
 
     // car collision check and "vision"
-    sf::Vector2f collision_point_front = {0, 0};
+    sf::Vector2f collision_point_front_position = {0, 0};
 
 public:
-
     float car_length;
     float accerleration;
     float max_speed;
@@ -36,7 +36,6 @@ public:
     int finish_intersection_id;
     int turning_direction = -1; // 0 LEFT, 1 STRAIGHT, 2 RIGHT, -1 END OF PATH
     string debug_text = "";
-
 
     float speed;
     sf::Vector2f position = sf::Vector2f(10.f, 10.f);
