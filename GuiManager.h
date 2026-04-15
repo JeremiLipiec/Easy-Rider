@@ -19,6 +19,8 @@ public:
     sf::RenderWindow window;
     sf::Vector2i mouse_position;
 
+    bool draw_debug = false;
+
     string program_name = "Easy Rider Jeremi Lipiec 348407";
 
     static GuiManager* getInstance();

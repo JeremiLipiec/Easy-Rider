@@ -298,23 +298,26 @@ void Vehicle::Draw()
     vehicle_shape.setRotation(moving_angle);
     GuiManager::getInstance()->window.draw(vehicle_shape);
 
-    // draw bounding box
     boundingBox = vehicle_shape.getGlobalBounds();
-    sf::RectangleShape boundingRect;
-    boundingRect.setPosition(boundingBox.position);
-    boundingRect.setSize(boundingBox.size);
-    boundingRect.setFillColor(sf::Color::Transparent);
-    boundingRect.setOutlineColor(sf::Color::Cyan);
-    boundingRect.setOutlineThickness(1.f);
-    GuiManager::getInstance()->window.draw(boundingRect);
 
-    GuiManager::getInstance()->DrawText(debug_text, position);
+    if(GuiManager::getInstance()->draw_debug){
+        // draw bounding box
+        sf::RectangleShape boundingRect;
+        boundingRect.setPosition(boundingBox.position);
+        boundingRect.setSize(boundingBox.size);
+        boundingRect.setFillColor(sf::Color::Transparent);
+        boundingRect.setOutlineColor(sf::Color::Cyan);
+        boundingRect.setOutlineThickness(1.f);
+        GuiManager::getInstance()->window.draw(boundingRect);
 
-    // draw collision point
-    sf::CircleShape collision_point_shape;
-    collision_point_shape.setPosition({collision_point_front_position.x - 4.f, collision_point_front_position.y - 4.f});
-    collision_point_shape.setRadius(4.f);
-    collision_point_shape.setPointCount(8);
-    collision_point_shape.setFillColor(sf::Color::Red);
-    GuiManager::getInstance()->window.draw(collision_point_shape);
+        GuiManager::getInstance()->DrawText(debug_text, position);
+
+        // draw collision point
+        sf::CircleShape collision_point_shape;
+        collision_point_shape.setPosition({collision_point_front_position.x - 4.f, collision_point_front_position.y - 4.f});
+        collision_point_shape.setRadius(4.f);
+        collision_point_shape.setPointCount(8);
+        collision_point_shape.setFillColor(sf::Color::Red);
+        GuiManager::getInstance()->window.draw(collision_point_shape);
+    }
 }

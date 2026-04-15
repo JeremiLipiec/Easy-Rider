@@ -54,7 +54,6 @@ void Intersection::Update()
 
 void Intersection::Draw()
 {
-    //return;
     // draw intersections
     sf::RectangleShape intersection_shape({intersection_size, intersection_size});
     intersection_shape.setPosition({position.x - intersection_size / 2, position.y - intersection_size / 2});
@@ -70,17 +69,17 @@ void Intersection::Draw()
 
     GuiManager::getInstance()->window.draw(intersection_shape);
 
-    // GuiManager::getInstance()->DrawText(to_string(id), position);
     GuiManager::getInstance()->DrawText(to_string(light_direction), position);
 
-    // sf::FloatRect boundingBox = intersection_shape.getGlobalBounds();
-    sf::RectangleShape boundingRect;
-    boundingRect.setPosition(boundingBox.position);
-    boundingRect.setSize(boundingBox.size);
-    boundingRect.setFillColor(sf::Color::Transparent);
-    boundingRect.setOutlineColor(sf::Color::Cyan);
-    boundingRect.setOutlineThickness(1.0f);
-    GuiManager::getInstance()->window.draw(boundingRect);
+    if((bool)GuiManager::getInstance()->draw_debug){
+        sf::RectangleShape boundingRect;
+        boundingRect.setPosition(boundingBox.position);
+        boundingRect.setSize(boundingBox.size);
+        boundingRect.setFillColor(sf::Color::Transparent);
+        boundingRect.setOutlineColor(sf::Color::Cyan);
+        boundingRect.setOutlineThickness(1.0f);
+        GuiManager::getInstance()->window.draw(boundingRect);
+    }
 
     for (int i = 0; i < 4; i++)
     {
@@ -95,12 +94,14 @@ void Intersection::Draw()
             lightShape.setFillColor(sf::Color::Red);
         GuiManager::getInstance()->window.draw(lightShape);
 
-        sf::RectangleShape boundingRect;
-        boundingRect.setPosition(light_boxes[i].position);
-        boundingRect.setSize(light_boxes[i].size);
-        boundingRect.setFillColor(sf::Color::Transparent);
-        boundingRect.setOutlineColor(sf::Color::White);
-        boundingRect.setOutlineThickness(1.0f);
-        GuiManager::getInstance()->window.draw(boundingRect);
+        if((bool)GuiManager::getInstance()->draw_debug){
+            sf::RectangleShape boundingRect;
+            boundingRect.setPosition(light_boxes[i].position);
+            boundingRect.setSize(light_boxes[i].size);
+            boundingRect.setFillColor(sf::Color::Transparent);
+            boundingRect.setOutlineColor(sf::Color::White);
+            boundingRect.setOutlineThickness(1.0f);
+            GuiManager::getInstance()->window.draw(boundingRect);
+        }
     }
 }

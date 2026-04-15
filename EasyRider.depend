@@ -1613,14 +1613,14 @@
 1771793814 b:\_studia_szkola\pw\przedmioty\zaawansowane c++\projekt\easyrider\vechicle.h
 	<SFML/Graphics.hpp>
 
-1776279340 source:c:\users\jeremi\desktop\easyrider\main.cpp
+1776281645 source:c:\users\jeremi\desktop\easyrider\main.cpp
 	<SFML/Graphics.hpp>
 	<cstdlib>
 	<ctime>
 	"Simulation.h"
 	"GuiManager.h"
 
-1772133965 c:\users\jeremi\desktop\easyrider\simulation.h
+1776282150 c:\users\jeremi\desktop\easyrider\simulation.h
 	<SFML/Graphics.hpp>
 	"Infrastructure.h"
 	"Traffic.h"
@@ -1634,7 +1634,7 @@
 1776280350 c:\users\jeremi\desktop\easyrider\road.h
 	<SFML/Graphics.hpp>
 
-1776278508 c:\users\jeremi\desktop\easyrider\intersection.h
+1776281678 c:\users\jeremi\desktop\easyrider\intersection.h
 	<SFML/Graphics.hpp>
 
 1771796134 c:\users\jeremi\desktop\easyrider\vechicle.h
@@ -1647,7 +1647,7 @@
 1776278335 c:\users\jeremi\desktop\easyrider\vehicle.h
 	<SFML/Graphics.hpp>
 
-1776192961 source:c:\users\jeremi\desktop\easyrider\simulation.cpp
+1776281658 source:c:\users\jeremi\desktop\easyrider\simulation.cpp
 	<SFML/Graphics.hpp>
 	"Simulation.h"
 	"GuiManager.h"
@@ -1657,7 +1657,7 @@
 	"Simulation.h"
 	"Traffic.h"
 
-1776281062 source:c:\users\jeremi\desktop\easyrider\vehicle.cpp
+1776282310 source:c:\users\jeremi\desktop\easyrider\vehicle.cpp
 	<SFML/Graphics.hpp>
 	<queue>
 	<limits>
@@ -1673,23 +1673,25 @@
 	"Infrastructure.h"
 	"GuiManager.h"
 
-1776193193 source:c:\users\jeremi\desktop\easyrider\guimanager.cpp
+1776282299 source:c:\users\jeremi\desktop\easyrider\guimanager.cpp
 	<SFML/Graphics.hpp>
 	"GuiManager.h"
+	"Simulation.h"
 
-1772131308 c:\users\jeremi\desktop\easyrider\guimanager.h
+1776282426 c:\users\jeremi\desktop\easyrider\guimanager.h
 	<SFML/Graphics.hpp>
 
-1776281040 source:c:\users\jeremi\desktop\easyrider\intersection.cpp
+1776282435 source:c:\users\jeremi\desktop\easyrider\intersection.cpp
 	<SFML/Graphics.hpp>
 	"Intersection.h"
 	"GuiManager.h"
 	<cstdlib>
 
-1776274835 source:c:\users\jeremi\desktop\easyrider\road.cpp
+1776282242 source:c:\users\jeremi\desktop\easyrider\road.cpp
 	<SFML/Graphics.hpp>
 	"Road.h"
 	"GuiManager.h"
 	"Simulation.h"
 	"Intersection.h"
+	<algorithm>
 

@@ -45,7 +45,7 @@ void setup(){
 
     int start_id, end_id;
 
-    for(int i = 0; i < 20; i++){
+    for(int i = 0; i < 40; i++){
         start_id = rand() % intersection_count;
         end_id = rand() % (intersection_count - 1);
         if(end_id >= start_id) end_id++;

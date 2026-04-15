@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "GuiManager.h"
+#include "Simulation.h"
 
 using namespace std;
 
@@ -24,6 +25,9 @@ void GuiManager::SetupWindow(){
 }
 
 void GuiManager::DrawText(string text, sf::Vector2f position){
+    if(!GuiManager::getInstance()->draw_debug)
+        return;
+
     text_object.setString(text);
     text_object.setPosition(position);
     window.draw(text_object);
