@@ -135,6 +135,15 @@ int Vehicle::CalculateTurningDirection()
 
 void Vehicle::Update()
 {
+    if (!is_spawned)
+    {
+        if (spawn_timer-- > 0)
+            return;
+        Setup();
+        is_spawned = true;
+        return;
+    }
+
     Intersection &next_intersection = Simulation::getInstance()->infrastructure.intersections[next_intersection_id];
     Intersection &current_intersection = Simulation::getInstance()->infrastructure.intersections[current_intersection_id];
 
@@ -144,22 +153,13 @@ void Vehicle::Update()
         speed_limit = (turning_direction - 1) < 0 ? 1.2f : (turning_direction - 1) > 0 ? 0.8f : max_speed;
 
     // if red light set speed limit to 0
-    if (!(bool)boundingBox.findIntersection(next_intersection.boundingBox))
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            if (next_intersection.light_boxes[i].contains(collision_point_front_position) && next_intersection.light_direction != i)
-            {
-                speed_limit = 0;
-            }
-        }
+    if(PointsCollidingWithRedLight(next_intersection)){
+        speed_limit = 0;
     }
 
     // if car in front speed limit to 0
-    for(int i = 0; i < Simulation::getInstance()->traffic.vehicles.size(); i++){
-        if(Simulation::getInstance()->traffic.vehicles[i].boundingBox.contains(collision_point_front_position)){
-            speed_limit = 0;
-        }
+    if(PointsCollidingWithCar()){
+        speed_limit = 0;
     }
 
     if (speed < speed_limit)
@@ -168,6 +168,14 @@ void Vehicle::Update()
         speed -= breaking_force;
     if (speed < 0.f)
         speed = 0.f;
+
+    // if in collision
+    for(int i = 0; i < (int)Simulation::getInstance()->traffic.vehicles.size(); i++){
+        if(Simulation::getInstance()->traffic.vehicles[i].boundingBox.contains(collision_point_mask_position))
+        {
+            speed = 0;
+        }
+    }
 
     // handle turning and intersections
 
@@ -286,11 +294,39 @@ void Vehicle::Update()
 
     // update position of the collision point
     sf::Vector2f forward = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
-    collision_point_front_position = position + forward * (car_length / 2.f + 30.f + 20.f * (speed - 1));
+    collision_point_front_position = position + forward * (car_length / 2.f + 30.f + car_width * (speed - 1));
+    collision_point_mask_position = position + forward * (car_length / 2.f + 10);
+}
+
+bool Vehicle::PointsCollidingWithCar(){
+    for(int i = 0; i < (int)Simulation::getInstance()->traffic.vehicles.size(); i++){
+        if(Simulation::getInstance()->traffic.vehicles[i].boundingBox.contains(collision_point_front_position))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Vehicle::PointsCollidingWithRedLight(Intersection next_intersection){
+    if (!(bool)boundingBox.findIntersection(next_intersection.boundingBox))
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (next_intersection.light_boxes[i].contains(collision_point_front_position) && next_intersection.light_direction != i)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void Vehicle::Draw()
 {
+    if (!is_spawned)
+        return;
+
     // draw the vehicle
     sf::RectangleShape vehicle_shape({car_length, car_width});
     vehicle_shape.setOrigin({car_length / 2.f, car_width / 2.f});
@@ -312,9 +348,15 @@ void Vehicle::Draw()
 
         GuiManager::getInstance()->DrawText(debug_text, position);
 
-        // draw collision point
+        // draw collision points
         sf::CircleShape collision_point_shape;
         collision_point_shape.setPosition({collision_point_front_position.x - 4.f, collision_point_front_position.y - 4.f});
+        collision_point_shape.setRadius(4.f);
+        collision_point_shape.setPointCount(8);
+        collision_point_shape.setFillColor(sf::Color::Red);
+        GuiManager::getInstance()->window.draw(collision_point_shape);
+
+        collision_point_shape.setPosition({collision_point_mask_position.x - 4.f, collision_point_mask_position.y - 4.f});
         collision_point_shape.setRadius(4.f);
         collision_point_shape.setPointCount(8);
         collision_point_shape.setFillColor(sf::Color::Red);

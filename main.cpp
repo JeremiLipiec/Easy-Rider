@@ -30,7 +30,7 @@ int main()
 }
 
 void setup(){
-    int intersection_count = 16;
+    int intersection_count = 9;
     simulation = Simulation::getInstance(intersection_count);
 
     //simulation->infrastructure.infrastructure_map[3][0] = 1;
@@ -45,7 +45,7 @@ void setup(){
 
     int start_id, end_id;
 
-    for(int i = 0; i < 40; i++){
+    for(int i = 0; i < 60; i++){
         start_id = rand() % intersection_count;
         end_id = rand() % (intersection_count - 1);
         if(end_id >= start_id) end_id++;

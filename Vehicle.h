@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include "Infrastructure.h"
 
 using namespace std;
 
@@ -25,6 +26,7 @@ private:
 
     // car collision check and "vision"
     sf::Vector2f collision_point_front_position = {0, 0};
+    sf::Vector2f collision_point_mask_position = {0, 0};
 
 public:
     float car_length;
@@ -38,6 +40,8 @@ public:
     string debug_text = "";
 
     float speed;
+    int spawn_timer = 0;
+    bool is_spawned = false;
     sf::Vector2f position = sf::Vector2f(10.f, 10.f);
     sf::Angle moving_angle;
     sf::FloatRect boundingBox;
@@ -55,4 +59,8 @@ public:
     vector<int> CalculatePath();
 
     void AdvanceToNextIntersection();
+
+    bool PointsCollidingWithCar();
+
+    bool PointsCollidingWithRedLight(Intersection next_intersection);
 };
