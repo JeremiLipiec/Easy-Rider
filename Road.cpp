@@ -24,8 +24,8 @@ void Road::Draw(){
     sf::Angle intersections_angle = intersection_diff.angle();
 
     // calculate starting position
-    float angle_shift_x = (sin(intersections_angle.asDegrees()*3.1415/180)/2 + 1/2.f) * road_thickness - road_thickness / 2; // ???
-    float angle_shift_y = (cos(intersections_angle.asDegrees()*3.1415/180)/2 + 1/2.f) * road_thickness - road_thickness / 2; // ???
+    float angle_shift_x = (sin(intersections_angle.asDegrees()*3.1415/180)/2 + 1/2.f) * Simulation::getInstance()->infrastructure.road_thickness - Simulation::getInstance()->infrastructure.road_thickness / 2; // ???
+    float angle_shift_y = (cos(intersections_angle.asDegrees()*3.1415/180)/2 + 1/2.f) * Simulation::getInstance()->infrastructure.road_thickness - Simulation::getInstance()->infrastructure.road_thickness / 2; // ???
 
     float angle_start_position_shift_x = angle_shift_x;
     float angle_start_position_shift_y = angle_shift_y;
@@ -36,7 +36,7 @@ void Road::Draw(){
     sf::Vector2f line_start_position(line_start_pos_x, line_start_pos_y);
 
     // draw the rectangle
-    sf::RectangleShape road_shape({road_length, road_thickness});
+    sf::RectangleShape road_shape({road_length, Simulation::getInstance()->infrastructure.road_thickness});
     road_shape.setFillColor(sf::Color(100, 100, 100));
     road_shape.setPosition(line_start_position);
     road_shape.setRotation(intersections_angle);

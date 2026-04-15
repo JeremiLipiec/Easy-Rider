@@ -2,9 +2,54 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="Simulation.h" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
+	<File name="GuiManager.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="264" topLine="0" />
+			<Cursor1 position="198" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Road.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="234" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Intersection.cpp" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2007" topLine="22" />
+		</Cursor>
+	</File>
+	<File name="Vehicle.h" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="851" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="main.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="637" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Vehicle.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="4" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2414" topLine="31" />
+		</Cursor>
+	</File>
+	<File name="Intersection.h" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="393" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Simulation.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="789" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Infrastructure.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="446" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Infrastructure.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="759" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="Traffic.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
@@ -12,69 +57,24 @@
 			<Cursor1 position="347" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="GuiManager.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="198" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Road.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="234" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Infrastructure.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="632" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Simulation.cpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="789" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="GuiManager.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="330" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Vehicle.cpp" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="4" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4517" topLine="87" />
-		</Cursor>
-	</File>
-	<File name="Intersection.h" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="288" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="main.cpp" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1321" topLine="19" />
-		</Cursor>
-	</File>
-	<File name="Road.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="357" topLine="3" />
-		</Cursor>
-	</File>
-	<File name="Infrastructure.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="759" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Traffic.cpp" open="1" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
+	<File name="Traffic.cpp" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="548" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="Vehicle.h" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
+	<File name="GuiManager.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="851" topLine="0" />
+			<Cursor1 position="330" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="Intersection.cpp" open="1" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
+	<File name="Road.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1170" topLine="0" />
+			<Cursor1 position="357" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Simulation.h" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="264" topLine="0" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

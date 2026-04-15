@@ -31,7 +31,7 @@ void Vehicle::Setup(){
     dir = dir / dir.length();
     sf::Vector2f right = {-dir.y, dir.x};
 
-    position = current.position + right * 17.5f;
+    position = current.position + right * Simulation::getInstance()->infrastructure.road_thickness / 4.f;
 }
 
 vector<int> Vehicle::CalculatePath(){
@@ -44,7 +44,7 @@ vector<int> Vehicle::CalculatePath(){
 
     dist[start_intersection_id] = 0.f;
 
-    priority_queue<pair<float,int>vector<pair<float,int>>, greater<pair<float,int>>> pq;
+    priority_queue<pair<float,int>, vector<pair<float,int>>, greater<pair<float,int>>> pq;
     pq.push({0.f, start_intersection_id});
 
     while(!pq.empty()){
@@ -151,7 +151,7 @@ void Vehicle::Update(){
                 sf::Vector2f exit_dir = {std::cos(exit_angle.asRadians()), std::sin(exit_angle.asRadians())};
                 sf::Vector2f exit_right = {-exit_dir.y, exit_dir.x};
 
-                exit_point = next_intersection.position + exit_right * 17.5f + exit_dir * (next_intersection.intersection_size / 2.f);
+                exit_point = next_intersection.position + exit_right * Simulation::getInstance()->infrastructure.road_thickness / 4.f + exit_dir * (next_intersection.intersection_size / 2.f);
 
                 float det = entry_dir.x * exit_dir.y - exit_dir.x * entry_dir.y;
                 sf::Vector2f delta = exit_point - entry_position;
@@ -194,7 +194,7 @@ void Vehicle::Update(){
 
             sf::Vector2f to_pos = position - new_current.position;
             float along = to_pos.x * road_dir.x + to_pos.y * road_dir.y;
-            position = new_current.position + road_dir * along + right * 17.5f;
+            position = new_current.position + road_dir * along + right * Simulation::getInstance()->infrastructure.road_thickness / 4.f;
 
             moving_angle = exit_angle;
             is_turning = false;

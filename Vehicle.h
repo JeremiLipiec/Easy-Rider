@@ -13,10 +13,6 @@ private:
     int next_intersection_id;
     float car_width = 20.f;
 
-    // oh god
-    float right_turn_radius = 10.f;
-    float left_turn_radius = 20.f;
-
     sf::Angle entry_angle;
     sf::Angle exit_angle;
     sf::Vector2f entry_position;
@@ -25,6 +21,9 @@ private:
     float turn_t = 0.f;
     float turn_arc_length = 1.f;
     bool is_turning = false;
+
+    // car collision check and "vision"
+    sf::Vector2f collision_point_front = {0, 0};
 
 public:
 

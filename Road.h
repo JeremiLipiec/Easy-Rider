@@ -12,7 +12,6 @@ class Road {
     int intersection_a_id;
     int intersection_b_id;
     float speed_limit;
-    float road_thickness = 70.f;
 
     Road(int _intersection_a_id, int _intersection_b_id, float _speed_limit);
 
