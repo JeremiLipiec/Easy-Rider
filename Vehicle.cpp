@@ -141,6 +141,8 @@ void Vehicle::Update()
             return;
         Setup();
         is_spawned = true;
+        sf::Vector2f forward = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
+        collision_point_front_position = position + forward * (car_length / 2.f + 30.f + 20.f * (speed - 1));
         return;
     }
 
@@ -313,7 +315,7 @@ bool Vehicle::PointsCollidingWithRedLight(Intersection next_intersection){
     {
         for (int i = 0; i < 4; i++)
         {
-            if (next_intersection.light_boxes[i].contains(collision_point_front_position) && next_intersection.light_direction != i)
+            if (next_intersection.light_boxes[i].contains(collision_point_front_position) && next_intersection.current_green_light_direction != i)
             {
                 return true;
             }
