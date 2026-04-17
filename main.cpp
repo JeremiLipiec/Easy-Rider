@@ -35,9 +35,6 @@ void setup(){
 
     simulation->infrastructure.infrastructure_map[0][1] = 1;
     simulation->infrastructure.infrastructure_map[1][3] = 1;
-    //simulation->infrastructure.infrastructure_map[1][1] = 1;
-    //simulation->infrastructure.infrastructure_map[7][8] = 1;
-    //simulation->infrastructure.infrastructure_map[8][5] = 1;
 
     simulation->infrastructure.FillMap();
     simulation->infrastructure.GenerateMap();
@@ -50,12 +47,39 @@ void setup(){
         if(end_id >= start_id) end_id++;
         simulation->AddVehicle(2.f, 35.f, .05f, .1f, start_id, end_id);
     }
+
+    gui_manager->SetupMainMenu();
 }
 
 void draw(){
     gui_manager->Update();
-    gui_manager->DrawMouseCursor();
 
-    simulation->Update();
-    simulation->Draw();
+    switch (gui_manager->active_screen)
+    {
+        case 0:
+            gui_manager->DrawMainMenu();
+            break;
+        case 1:
+        {
+            static int half_frame = 0;
+            if (!gui_manager->sim_paused)
+            {
+                bool run = (gui_manager->sim_speed == 0.5f) ? (half_frame++ % 2 == 0) : true;
+                int ticks = (gui_manager->sim_speed >= 1.f) ? (int)gui_manager->sim_speed : 1;
+                if (run)
+                    for (int t = 0; t < ticks; t++)
+                        simulation->Update();
+            }
+            else
+                simulation->infrastructure.UpdatePositions();
+            simulation->Draw();
+            gui_manager->DrawSimulation();
+            break;
+        }
+        case 2:
+            gui_manager->DrawReport();
+            break;
+    }
+
+    gui_manager->DrawMouseCursor();
 }

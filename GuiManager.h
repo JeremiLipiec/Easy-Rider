@@ -13,25 +13,51 @@ private:
 
 public:
 
+    short active_screen = 0; // 0 - main menu, 1 - simulation, 2 - repot
+
     sf::Font font_object;
     sf::Text text_object;
 
     sf::RenderWindow window;
-    sf::Vector2i mouse_position;
+    sf::Vector2f mouse_position;
 
     bool is_dragging = false;
-    sf::Vector2i drag_anchor_mouse;
+    sf::Vector2f drag_anchor_mouse;
     sf::Vector2f drag_anchor_origin;
 
-    bool draw_debug = true;
+    bool draw_debug = false;
 
     string program_name = "Easy Rider Jeremi Lipiec 348407";
+
+    // main menu state
+    string file_path_input = "";
+    bool file_path_focused = false;
+    sf::FloatRect mm_file_input_rect;
+    sf::FloatRect mm_load_btn_rect;
+    sf::FloatRect mm_start_btn_rect;
+
+    // simulation screen state
+    bool sim_paused = false;
+    float sim_speed = 1.f;
+    sf::FloatRect sim_pause_btn_rect;
+    sf::FloatRect sim_stop_btn_rect;
+    sf::FloatRect sim_speed_btn_rect;
+    float speeds[4] = {0.5f, 1.f, 2.f, 5.f};
 
     static GuiManager* getInstance();
 
     void SetupWindow();
 
+    void SetupMainMenu();
+    void SetupSimulation();
+    void SetupReport();
+
     void Update();
+
+    void DrawButton(sf::FloatRect rect, const string& label, sf::Color color = sf::Color(65, 130, 200));
+    void DrawMainMenu();
+    void DrawSimulation();
+    void DrawReport();
 
     void DrawText(string text, sf::Vector2f position);
 

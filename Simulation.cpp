@@ -20,7 +20,6 @@ Simulation::Simulation(int _intersection_count) {
 
 void Simulation::Draw(){
     infrastructure.Draw();
-    traffic.Update(); // move to update function
     traffic.Draw();
 }
 
@@ -30,4 +29,5 @@ void Simulation::AddVehicle(float max_speed, float length, float accerleration, 
 
 void Simulation::Update(){
     infrastructure.Update();
+    traffic.Update();
 }
