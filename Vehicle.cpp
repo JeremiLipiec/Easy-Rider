@@ -380,7 +380,7 @@ void Vehicle::Draw()
         boundingRect.setOutlineThickness(1.f);
         GuiManager::getInstance()->window.draw(boundingRect);
 
-        GuiManager::getInstance()->DrawText(to_string(turning_direction), global_pos);
+        GuiManager::getInstance()->DrawDebugText(to_string(turning_direction), global_pos);
 
         // draw collision points
         sf::CircleShape collision_point_shape;

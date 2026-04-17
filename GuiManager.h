@@ -59,7 +59,7 @@ public:
     void DrawSimulation();
     void DrawReport();
 
-    void DrawText(string text, sf::Vector2f position);
+    void DrawDebugText(string text, sf::Vector2f position);
 
     void DrawMouseCursor();
 };

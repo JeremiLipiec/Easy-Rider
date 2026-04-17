@@ -131,7 +131,7 @@ void Intersection::Draw()
 
     GuiManager::getInstance()->window.draw(intersection_shape);
 
-    GuiManager::getInstance()->DrawText(to_string(id), position);
+    GuiManager::getInstance()->DrawDebugText(to_string(id), position);
 
     if ((bool)GuiManager::getInstance()->draw_debug)
     {

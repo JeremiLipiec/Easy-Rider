@@ -1613,19 +1613,19 @@
 1771793814 b:\_studia_szkola\pw\przedmioty\zaawansowane c++\projekt\easyrider\vechicle.h
 	<SFML/Graphics.hpp>
 
-1776440914 source:c:\users\jeremi\desktop\easyrider\main.cpp
+1776443424 source:c:\users\jeremi\desktop\easyrider\main.cpp
 	<SFML/Graphics.hpp>
 	<cstdlib>
 	<ctime>
 	"Simulation.h"
 	"GuiManager.h"
 
-1776437214 c:\users\jeremi\desktop\easyrider\simulation.h
+1776442438 c:\users\jeremi\desktop\easyrider\simulation.h
 	<SFML/Graphics.hpp>
 	"Infrastructure.h"
 	"Traffic.h"
 
-1776431235 c:\users\jeremi\desktop\easyrider\infrastructure.h
+1776442086 c:\users\jeremi\desktop\easyrider\infrastructure.h
 	<SFML/Graphics.hpp>
 	"Road.h"
 	"Intersection.h"
@@ -1651,8 +1651,10 @@
 	<SFML/Graphics.hpp>
 	"Infrastructure.h"
 
-1776437317 source:c:\users\jeremi\desktop\easyrider\simulation.cpp
+1776442453 source:c:\users\jeremi\desktop\easyrider\simulation.cpp
 	<SFML/Graphics.hpp>
+	<fstream>
+	<sstream>
 	"Simulation.h"
 	"GuiManager.h"
 
@@ -1661,7 +1663,7 @@
 	"Simulation.h"
 	"Traffic.h"
 
-1776439196 source:c:\users\jeremi\desktop\easyrider\vehicle.cpp
+1776442730 source:c:\users\jeremi\desktop\easyrider\vehicle.cpp
 	<SFML/Graphics.hpp>
 	<queue>
 	<limits>
@@ -1671,22 +1673,24 @@
 	"Intersection.h"
 	"GuiManager.h"
 
-1776431241 source:c:\users\jeremi\desktop\easyrider\infrastructure.cpp
+1776442093 source:c:\users\jeremi\desktop\easyrider\infrastructure.cpp
 	<SFML/Graphics.hpp>
 	<cmath>
 	"Infrastructure.h"
 	"GuiManager.h"
 	"Simulation.h"
 
-1776438848 source:c:\users\jeremi\desktop\easyrider\guimanager.cpp
+1776442802 source:c:\users\jeremi\desktop\easyrider\guimanager.cpp
+	<windows.h>
+	<commdlg.h>
 	<SFML/Graphics.hpp>
 	"GuiManager.h"
 	"Simulation.h"
 
-1776440919 c:\users\jeremi\desktop\easyrider\guimanager.h
+1776442708 c:\users\jeremi\desktop\easyrider\guimanager.h
 	<SFML/Graphics.hpp>
 
-1776441197 source:c:\users\jeremi\desktop\easyrider\intersection.cpp
+1776442716 source:c:\users\jeremi\desktop\easyrider\intersection.cpp
 	<SFML/Graphics.hpp>
 	"Intersection.h"
 	"GuiManager.h"

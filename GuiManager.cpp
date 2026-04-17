@@ -1,6 +1,25 @@
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#include <commdlg.h>
 #include <SFML/Graphics.hpp>
 #include "GuiManager.h"
 #include "Simulation.h"
+
+static string OpenFileDialog()
+{
+    char filename[MAX_PATH] = "";
+    OPENFILENAMEA ofn;
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize    = sizeof(ofn);
+    ofn.hwndOwner      = NULL;
+    ofn.lpstrFilter    = "EasyRider Map\0*.ezrdr\0All Files\0*.*\0";
+    ofn.lpstrFile      = filename;
+    ofn.nMaxFile       = MAX_PATH;
+    ofn.lpstrDefExt    = "ezrdr";
+    ofn.Flags          = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+    return GetOpenFileNameA(&ofn) ? string(filename) : "";
+}
 
 using namespace std;
 
@@ -28,7 +47,7 @@ void GuiManager::SetupWindow()
     window.setFramerateLimit(60);
 }
 
-void GuiManager::DrawText(string text, sf::Vector2f position)
+void GuiManager::DrawDebugText(string text, sf::Vector2f position)
 {
     if (!GuiManager::getInstance()->draw_debug)
         return;
@@ -311,7 +330,13 @@ void GuiManager::Update()
 
                     if (mm_load_btn_rect.contains(mouse_position))
                     {
-                        // TODO: load infrastructure from file_path_input
+                        string picked = OpenFileDialog();
+                        if (!picked.empty())
+                        {
+                            file_path_input = picked;
+                            Simulation::getInstance()->LoadMap(file_path_input);
+                            Simulation::getInstance()->InitTraffic();
+                        }
                     }
 
                     if (mm_start_btn_rect.contains(mouse_position))

@@ -34,8 +34,6 @@ public:
 
     void GenerateMap();
 
-    void FillMap();
-
     void Draw();
 };
 

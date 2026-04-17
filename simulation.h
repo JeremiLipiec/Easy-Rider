@@ -20,6 +20,10 @@ public:
 
     static Simulation* getInstance(int _intersection_count = 0);
 
+    bool LoadMap(const string& path);
+
+    void InitTraffic();
+
     void Draw();
 
     void Update();
