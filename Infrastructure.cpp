@@ -13,6 +13,8 @@ void Infrastructure::Setup(int _intersection_count)
     intersection_count = _intersection_count;
     map_size = sqrt(intersection_count);
     infrastructure_map = vector<vector<int>>(intersection_count, vector<int>(intersection_count, 0));
+    intersections.clear();
+    roads.clear();
 }
 
 
