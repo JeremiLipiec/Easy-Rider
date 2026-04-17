@@ -318,6 +318,37 @@ void GuiManager::Update()
                     }
                 }
             }
+
+            if (const auto *released = event->getIf<sf::Event::MouseButtonReleased>())
+            {
+                if (released->button == sf::Mouse::Button::Left)
+                {
+                    sf::Vector2f delta = mouse_position - drag_anchor_mouse;
+                    bool is_click = (delta.x * delta.x + delta.y * delta.y) < 64.f; // < 8px movement
+                    if (is_click && mouse_position.x > 220.f)
+                    {
+                        auto &infra = Simulation::getInstance()->infrastructure;
+                        auto &traffic = Simulation::getInstance()->traffic;
+                        int n = infra.intersection_count;
+                        for (auto &i : infra.intersections)
+                        {
+                            if (i.used && i.boundingBox.contains(mouse_position))
+                            {
+                                int end_id = rand() % (n - 1);
+                                if (end_id >= i.id) end_id++;
+                                switch (rand() % 3)
+                                {
+                                    case 0: traffic.AddCar(i.id, end_id);  break;
+                                    case 1: traffic.AddBike(i.id, end_id); break;
+                                    case 2: traffic.AddBus(i.id, end_id);  break;
+                                }
+                                traffic.vehicles.back().spawn_timer = 0;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         if (active_screen == 0)
