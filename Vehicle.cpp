@@ -34,7 +34,11 @@ void Vehicle::Setup()
     dir = dir / dir.length();
     sf::Vector2f right = {-dir.y, dir.x};
 
-    position = current.position + right * Simulation::getInstance()->infrastructure.road_thickness / 4.f;
+    auto &infra = Simulation::getInstance()->infrastructure;
+    moving_angle = dir.angle();
+    position = current.position
+             + dir   * (infra.intersection_size / 2.f + 1.f)
+             + right * (infra.road_thickness / 4.f);
 }
 
 vector<int> Vehicle::CalculatePath()
@@ -97,22 +101,71 @@ void Vehicle::AdvanceToNextIntersection()
     turning_direction = CalculateTurningDirection();
 
     if (path.size() > 1)
-    {
         path.erase(path.begin());
-    }
-    else
+
+    // heading to last intersection — recalculate now so turning_direction is correct on arrival
+    if (path.size() == 1)
     {
-        // finished path, delete vechicle
+        auto &infra = Simulation::getInstance()->infrastructure;
+        int prev = current_intersection_id;
+        start_intersection_id = next_intersection_id;
+        finish_intersection_id = rand() % (infra.intersection_count - 1);
+        if (finish_intersection_id >= start_intersection_id)
+            finish_intersection_id++;
+
+        int original = infra.infrastructure_map[start_intersection_id][prev];
+        infra.infrastructure_map[start_intersection_id][prev] = 0;
+        vector<int> new_path = CalculatePath();
+        infra.infrastructure_map[start_intersection_id][prev] = original;
+
+        if (new_path.size() < 2)
+        {
+            // no forward path — try traveling backward via a predecessor
+            int back = -1;
+            for (int j = 0; j < infra.intersection_count; j++)
+            {
+                if (j != prev && j != start_intersection_id &&
+                    infra.infrastructure_map[j][start_intersection_id] == 1)
+                {
+                    back = j;
+                    break;
+                }
+            }
+            if (back >= 0)
+                new_path = {start_intersection_id, back};
+            else if (prev >= 0)
+                new_path = {start_intersection_id, prev};
+        }
+
+        if (new_path.size() >= 2)
+        {
+            path = new_path;
+
+            sf::Vector2f v1 = infra.intersections[next_intersection_id].position - infra.intersections[current_intersection_id].position;
+            sf::Vector2f v2 = infra.intersections[path[1]].position - infra.intersections[next_intersection_id].position;
+            float len1 = v1.length(), len2 = v2.length();
+            if (len1 > 0.001f && len2 > 0.001f)
+            {
+                v1 /= len1; v2 /= len2;
+                float dot = v1.x * v2.x + v1.y * v2.y;
+                if (dot < -0.5f)
+                    turning_direction = 3;
+                else
+                {
+                    float cross = v1.x * v2.y - v1.y * v2.x;
+                    if (cross > 0.f) turning_direction = 2;
+                    else if (cross < 0.f) turning_direction = 0;
+                    else turning_direction = 1;
+                }
+            }
+        }
     }
 }
 
 int Vehicle::CalculateTurningDirection()
 {
-    // next intersection is the finish line, not turning
     if (path.size() < 3)
-    {
         return -1;
-    }
 
     Intersection &current = Simulation::getInstance()->infrastructure.intersections[current_intersection_id];
     Intersection &next = Simulation::getInstance()->infrastructure.intersections[next_intersection_id];
@@ -121,16 +174,24 @@ int Vehicle::CalculateTurningDirection()
     sf::Vector2f v1 = next.position - current.position;
     sf::Vector2f v2 = after_next.position - next.position;
 
-    int cross = v1.x * v2.y - v1.y * v2.x;
-
-    if (cross > 0)
-        return 2;
-    if (cross < 0)
-        return 0;
-    if (cross == 0)
+    float len1 = v1.length();
+    float len2 = v2.length();
+    if (len1 < 0.001f || len2 < 0.001f)
         return 1;
 
-    return -1;
+    v1 = v1 / len1;
+    v2 = v2 / len2;
+
+    float dot = v1.x * v2.x + v1.y * v2.y;
+    if (dot < -0.5f)
+        return 3; // U-turn
+
+    float cross = v1.x * v2.y - v1.y * v2.x;
+    if (cross > 0.f)
+        return 2; // RIGHT
+    if (cross < 0.f)
+        return 0; // LEFT
+    return 1;     // STRAIGHT
 }
 
 void Vehicle::Update()
@@ -140,6 +201,8 @@ void Vehicle::Update()
         if (spawn_timer-- > 0)
             return;
         Setup();
+        if (path.empty())
+            return;
         is_spawned = true;
         sf::Vector2f forward = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
         collision_point_front_position = position + forward * (car_length / 2.f + 30.f + 20.f * (speed - 1));
@@ -149,20 +212,21 @@ void Vehicle::Update()
     Intersection &next_intersection = Simulation::getInstance()->infrastructure.intersections[next_intersection_id];
     Intersection &current_intersection = Simulation::getInstance()->infrastructure.intersections[current_intersection_id];
 
-    // enforce speed limits and collision detection
+    // enforce speed limits
     float speed_limit = max_speed;
     if (next_intersection.boundingBox.contains(collision_point_front_position) || (bool)boundingBox.findIntersection(next_intersection.boundingBox))
-        speed_limit = (turning_direction - 1) < 0 ? 1.2f : (turning_direction - 1) > 0 ? 0.8f : max_speed;
-
-    // if red light set speed limit to 0
-    if(PointsCollidingWithRedLight(next_intersection)){
-        speed_limit = 0;
+    {
+        if (turning_direction == 0 || turning_direction == 2)
+            speed_limit = 0.8f;
+        else if (turning_direction == 3)
+            speed_limit = 0.6f;
     }
 
-    // if car in front speed limit to 0
-    if(PointsCollidingWithCar()){
+    if (PointsCollidingWithRedLight(next_intersection))
         speed_limit = 0;
-    }
+
+    if (PointsCollidingWithCar())
+        speed_limit = 0;
 
     if (speed < speed_limit)
         speed += accerleration;
@@ -171,131 +235,79 @@ void Vehicle::Update()
     if (speed < 0.f)
         speed = 0.f;
 
-    // if in collision
-    for(int i = 0; i < (int)Simulation::getInstance()->traffic.vehicles.size(); i++){
-        if(Simulation::getInstance()->traffic.vehicles[i].boundingBox.contains(collision_point_mask_position))
-        {
+    for (int i = 0; i < (int)Simulation::getInstance()->traffic.vehicles.size(); i++)
+    {
+        if (Simulation::getInstance()->traffic.vehicles[i].boundingBox.contains(collision_point_mask_position))
             speed = 0;
-        }
     }
 
-    // handle turning and intersections
+    sf::Vector2f forward = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
 
-    bool bezier_active = false;
-
-    if ((bool)boundingBox.findIntersection(next_intersection.boundingBox))
+    bool on_intersection = (bool)boundingBox.findIntersection(next_intersection.boundingBox);
+    if (on_intersection || (is_turning && turning_direction != 1 && turning_direction != -1))
     {
-        if (path.size() <= 1)
-        {
-            int n = Simulation::getInstance()->infrastructure.intersection_count;
-            int prev = current_intersection_id;
-            start_intersection_id = finish_intersection_id;
-            finish_intersection_id = rand() % (n - 1);
-            if (finish_intersection_id >= start_intersection_id)
-                finish_intersection_id++;
-            auto &infra = Simulation::getInstance()->infrastructure;
-            infra.infrastructure_map[start_intersection_id][prev] = 0;
-            path = CalculatePath();
-            infra.infrastructure_map[start_intersection_id][prev] = 1;
-            if (path.size() < 2)
-            {
-                speed = 0;
-                return;
-            }
-        }
-
         if (!is_turning)
         {
             is_turning = true;
-            entry_angle = moving_angle;
-            entry_position = position;
             turn_t = 0.f;
+            entry_angle = moving_angle;
+            entry_point = position; // arc the car center
 
-            if (path.size() >= 2)
-            {
-                sf::Vector2f after_next_pos = Simulation::getInstance()->infrastructure.intersections[path[1]].position;
-                exit_angle = (after_next_pos - next_intersection.position).angle();
-
-                sf::Vector2f entry_dir = {std::cos(entry_angle.asRadians()), std::sin(entry_angle.asRadians())};
-                sf::Vector2f exit_dir = {std::cos(exit_angle.asRadians()), std::sin(exit_angle.asRadians())};
-                sf::Vector2f exit_right = {-exit_dir.y, exit_dir.x};
-
-                exit_point = next_intersection.position + exit_right * Simulation::getInstance()->infrastructure.road_thickness / 4.f + exit_dir * (next_intersection.intersection_size / 2.f);
-
-                float det = entry_dir.x * exit_dir.y - exit_dir.x * entry_dir.y;
-                sf::Vector2f delta = exit_point - entry_position;
-
-                if (std::abs(det) < 0.01f)
-                {
-                    control_point = (entry_position + exit_point) / 2.f;
-                }
-                else
-                {
-                    float tp = (delta.x * exit_dir.y - delta.y * exit_dir.x) / det;
-                    control_point = entry_position + entry_dir * tp;
-                }
-
-                turn_arc_length = (control_point - entry_position).length() + (exit_point - control_point).length();
-                if (turn_arc_length < 0.001f)
-                    turn_arc_length = 1.f;
-            }
+            float road_t = Simulation::getInstance()->infrastructure.road_thickness;
+            if (turning_direction == 0)       turning_radius = road_t;        // left:   70
+            else if (turning_direction == 2)  turning_radius = road_t / 2.f;  // right:  35
+            else                              turning_radius = road_t / 4.f;  // U-turn: 17.5
         }
 
-        turn_t += speed / turn_arc_length;
-
-        if (turn_t < 1.f)
+        if (turning_direction == 1 || turning_direction == -1)
         {
-            float t = turn_t;
-            position = (1.f - t) * (1.f - t) * entry_position + 2.f * t * (1.f - t) * control_point + t * t * exit_point;
-            sf::Vector2f tangent = (1.f - t) * (control_point - entry_position) + t * (exit_point - control_point);
-            if (tangent.length() > 0.001f)
-                moving_angle = tangent.angle();
-            bezier_active = true;
+            // straight: just drive forward, no arc
+            position.x += std::cos(entry_angle.asRadians()) * speed;
+            position.y += std::sin(entry_angle.asRadians()) * speed;
+            moving_angle = entry_angle;
         }
         else
         {
-            sf::Vector2f tangent = exit_point - control_point;
-            if (tangent.length() > 0.001f)
-                moving_angle = tangent.angle();
+            float max_angle = (turning_direction == 3) ? 3.14159265f : (3.14159265f / 2.f);
+            sf::Vector2f fwd = {std::cos(entry_angle.asRadians()), std::sin(entry_angle.asRadians())};
+            sf::Vector2f side;
+            if (turning_direction == 2)
+                side = {-fwd.y, fwd.x};  // right
+            else
+                side = {fwd.y, -fwd.x};  // left / U-turn
+
+            float arc_length = turning_radius * max_angle;
+            turn_t += speed / arc_length;
+            if (turn_t > 1.f) turn_t = 1.f;
+
+            float theta = turn_t * max_angle;
+            position = entry_point
+                + fwd  * (turning_radius * std::sin(theta))
+                + side * (turning_radius * (1.f - std::cos(theta)));
+
+            sf::Vector2f dir = fwd * std::cos(theta) + side * std::sin(theta);
+            moving_angle = dir.angle();
+        }
+
+        if (turn_t >= 1.f && turning_direction != 1 && turning_direction != -1)
+        {
+            is_turning = false;
+            AdvanceToNextIntersection();
         }
     }
     else
     {
-        if (is_turning)
+        if (is_turning && (turning_direction == 1 || turning_direction == -1))
         {
-            AdvanceToNextIntersection();
-
-            Intersection &new_current = Simulation::getInstance()->infrastructure.intersections[current_intersection_id];
-            Intersection &new_next = Simulation::getInstance()->infrastructure.intersections[next_intersection_id];
-
-            sf::Vector2f road_dir = new_next.position - new_current.position;
-            road_dir = road_dir / road_dir.length();
-            sf::Vector2f right = {-road_dir.y, road_dir.x};
-
-            sf::Vector2f to_pos = position - new_current.position;
-            float along = to_pos.x * road_dir.x + to_pos.y * road_dir.y;
-            position = new_current.position + road_dir * along + right * Simulation::getInstance()->infrastructure.road_thickness / 4.f;
-
-            moving_angle = exit_angle;
             is_turning = false;
+            AdvanceToNextIntersection();
         }
-        else
-        {
-            sf::Vector2f moving_direction = next_intersection.position - current_intersection.position;
-            moving_angle = moving_direction.angle();
-        }
+
+        position.x += std::cos(moving_angle.asRadians()) * speed;
+        position.y += std::sin(moving_angle.asRadians()) * speed;
     }
 
-    debug_text = to_string(speed_limit);
-
-    if (!bezier_active)
-    {
-        sf::Vector2f velocity = sf::Vector2f(std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())) * speed;
-        position += velocity;
-    }
-
-    // update position of the collision point
-    sf::Vector2f forward = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
+    forward = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
     collision_point_front_position = position + forward * (car_length / 2.f + 30.f + car_width * (speed - 1));
     collision_point_mask_position = position + forward * (car_length / 2.f + 10);
 }
@@ -348,7 +360,7 @@ void Vehicle::Draw()
         boundingRect.setOutlineThickness(1.f);
         GuiManager::getInstance()->window.draw(boundingRect);
 
-        GuiManager::getInstance()->DrawText(debug_text, position);
+        GuiManager::getInstance()->DrawText(to_string(turning_direction), position);
 
         // draw collision points
         sf::CircleShape collision_point_shape;

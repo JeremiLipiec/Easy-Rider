@@ -14,8 +14,9 @@ public:
 
     float drawing_start_x = 100.f;
     float drawing_start_y = 100.f;
-    float intersection_distance = 400.f;
+    float intersection_distance = 300.f;
     float road_thickness = 70.f;
+    float intersection_size = 70.f;
 
     int intersection_count; // 4
     int map_size;

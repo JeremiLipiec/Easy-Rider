@@ -30,13 +30,12 @@ int main()
 }
 
 void setup(){
-    int intersection_count = 9;
+    int intersection_count = 16;
     simulation = Simulation::getInstance(intersection_count);
 
-    //simulation->infrastructure.infrastructure_map[3][0] = 1;
-    //simulation->infrastructure.infrastructure_map[1][0] = 1;
-    //simulation->infrastructure.infrastructure_map[1][4] = 1;
-    //simulation->infrastructure.infrastructure_map[4][7] = 1;
+    simulation->infrastructure.infrastructure_map[0][1] = 1;
+    simulation->infrastructure.infrastructure_map[1][3] = 1;
+    //simulation->infrastructure.infrastructure_map[1][1] = 1;
     //simulation->infrastructure.infrastructure_map[7][8] = 1;
     //simulation->infrastructure.infrastructure_map[8][5] = 1;
 
@@ -45,7 +44,7 @@ void setup(){
 
     int start_id, end_id;
 
-    for(int i = 0; i < 60; i++){
+    for(int i = 0; i < 40; i++){
         start_id = rand() % intersection_count;
         end_id = rand() % (intersection_count - 1);
         if(end_id >= start_id) end_id++;

@@ -10,19 +10,17 @@ class Vehicle
 private:
     // list of intersection ids
     vector<int> path;
-    int current_intersection_id;
-    int next_intersection_id;
+    int current_intersection_id = 0;
+    int next_intersection_id = 0;
     float car_width = 20.f;
 
-    sf::Angle entry_angle;
-    sf::Angle exit_angle;
-    sf::Vector2f entry_position;
+    // turning vars
+    sf::Vector2f entry_point;
     sf::Vector2f exit_point;
-    sf::Vector2f control_point;
+    float turning_radius = 0.f;
     float turn_t = 0.f;
-    float turn_arc_length = 1.f;
-    float turn_speed_limit = 0.f;
     bool is_turning = false;
+    sf::Angle entry_angle;
 
     // car collision check and "vision"
     sf::Vector2f collision_point_front_position = {0, 0};
@@ -36,7 +34,7 @@ public:
 
     int start_intersection_id;
     int finish_intersection_id;
-    int turning_direction = -1; // 0 LEFT, 1 STRAIGHT, 2 RIGHT, -1 END OF PATH
+    int turning_direction = -1; // 0 LEFT, 1 STRAIGHT, 2 RIGHT, 3 U-TURN, -1 END OF PATH
     string debug_text = "";
 
     float speed;

@@ -9,7 +9,6 @@ class Intersection {
     public:
 
     int id;
-    float intersection_size = 70.f;
     sf::Vector2f position; // center point of intersection
     bool has_traffic_lights;
     bool used;

@@ -13,8 +13,8 @@ Intersection::Intersection(int _id, sf::Vector2f _position, bool _has_traffic_li
     has_traffic_lights = _has_traffic_lights;
     used = false;
     current_green_light_direction = 0;
-    boundingBox.position = {position.x - intersection_size / 2, position.y - intersection_size / 2};
-    boundingBox.size = {intersection_size, intersection_size};
+    boundingBox.position = {position.x - Simulation::getInstance()->infrastructure.intersection_size / 2, position.y - Simulation::getInstance()->infrastructure.intersection_size / 2};
+    boundingBox.size = {Simulation::getInstance()->infrastructure.intersection_size, Simulation::getInstance()->infrastructure.intersection_size};
     SpawnLightBoxes();
     srand(position.x * position.y * id * 123865128);
     _time = rand() % (120 - 1);
@@ -22,8 +22,8 @@ Intersection::Intersection(int _id, sf::Vector2f _position, bool _has_traffic_li
 
 void Intersection::SpawnLightBoxes()
 {
-    float offset = intersection_size / 2.f;
-    float size = intersection_size / 3.f;
+    float offset = Simulation::getInstance()->infrastructure.intersection_size / 2.f;
+    float size = Simulation::getInstance()->infrastructure.intersection_size / 3.f;
     float thickness = 5.f;
 
     // setup active lights based on infrastructure map
@@ -113,8 +113,8 @@ void Intersection::Update()
 void Intersection::Draw()
 {
     // draw intersections
-    sf::RectangleShape intersection_shape({intersection_size, intersection_size});
-    intersection_shape.setPosition({position.x - intersection_size / 2, position.y - intersection_size / 2});
+    sf::RectangleShape intersection_shape({Simulation::getInstance()->infrastructure.intersection_size, Simulation::getInstance()->infrastructure.intersection_size});
+    intersection_shape.setPosition({position.x - Simulation::getInstance()->infrastructure.intersection_size / 2, position.y - Simulation::getInstance()->infrastructure.intersection_size / 2});
 
     if (used)
     {

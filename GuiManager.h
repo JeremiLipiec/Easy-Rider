@@ -19,7 +19,7 @@ public:
     sf::RenderWindow window;
     sf::Vector2i mouse_position;
 
-    bool draw_debug = false;
+    bool draw_debug = true;
 
     string program_name = "Easy Rider Jeremi Lipiec 348407";
 

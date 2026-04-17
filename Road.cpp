@@ -20,7 +20,7 @@ void Road::Setup(){
     Intersection& intersection_b = Simulation::getInstance()->infrastructure.intersections[intersection_b_id];
 
     float road_thickness = Simulation::getInstance()->infrastructure.road_thickness;
-    float half_intersection = intersection_a.intersection_size / 2.f;
+    float half_intersection = Simulation::getInstance()->infrastructure.intersection_size / 2.f;
 
     sf::Vector2f diff = intersection_b.position - intersection_a.position;
     float full_length = diff.length();
@@ -29,7 +29,7 @@ void Road::Setup(){
     sf::Vector2f dir = diff / full_length;
     sf::Vector2f perp_offset = sf::Vector2f(dir.y, -dir.x) * (road_thickness / 2.f);
 
-    road_length = full_length - intersection_a.intersection_size;
+    road_length = full_length - Simulation::getInstance()->infrastructure.intersection_size;
     line_start_position = intersection_a.position + dir * half_intersection + perp_offset;
 }
 
