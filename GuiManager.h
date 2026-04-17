@@ -19,13 +19,17 @@ public:
     sf::Text text_object;
 
     sf::RenderWindow window;
+    
+    // mouse
     sf::Vector2f mouse_position;
+    int mouse_size = 4;
+    sf::Color mouse_color = sf::Color::White;
 
     bool is_dragging = false;
     sf::Vector2f drag_anchor_mouse;
     sf::Vector2f drag_anchor_origin;
 
-    bool draw_debug = true;
+    bool draw_debug = false;
 
     string program_name = "Easy Rider Jeremi Lipiec 348407";
 
@@ -42,7 +46,7 @@ public:
     sf::FloatRect sim_pause_btn_rect;
     sf::FloatRect sim_stop_btn_rect;
     sf::FloatRect sim_speed_btn_rect;
-    float speeds[4] = {0.5f, 1.f, 2.f, 5.f};
+    float speeds[5] = {0.5f, 1.f, 2.f, 5.f, 10.f};
 
     static GuiManager* getInstance();
 

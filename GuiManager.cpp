@@ -11,13 +11,13 @@ static string OpenFileDialog()
     char filename[MAX_PATH] = "";
     OPENFILENAMEA ofn;
     ZeroMemory(&ofn, sizeof(ofn));
-    ofn.lStructSize    = sizeof(ofn);
-    ofn.hwndOwner      = NULL;
-    ofn.lpstrFilter    = "EasyRider Map\0*.ezrdr\0All Files\0*.*\0";
-    ofn.lpstrFile      = filename;
-    ofn.nMaxFile       = MAX_PATH;
-    ofn.lpstrDefExt    = "ezrdr";
-    ofn.Flags          = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFilter = "EasyRider Map\0*.ezrdr\0All Files\0*.*\0";
+    ofn.lpstrFile = filename;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrDefExt = "ezrdr";
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
     return GetOpenFileNameA(&ofn) ? string(filename) : "";
 }
 
@@ -122,14 +122,48 @@ void GuiManager::DrawMainMenu()
     info_box.setFillColor(sf::Color(40, 52, 72));
     window.draw(info_box);
 
-    sf::Text info_label(font_object);
-    info_label.setCharacterSize(20);
-    info_label.setFillColor(sf::Color(160, 170, 190));
-    info_label.setString("Program information and usage instruction");
-    sf::FloatRect ilb = info_label.getLocalBounds();
-    info_label.setPosition({box_x + (box_w - ilb.size.x) / 2.f - ilb.position.x,
-                            box_y + (box_h - ilb.size.y) / 2.f - ilb.position.y});
-    window.draw(info_label);
+    // info box header
+    sf::Text info_header(font_object);
+    info_header.setCharacterSize(22);
+    info_header.setFillColor(sf::Color::White);
+    info_header.setString("About the program");
+    info_header.setPosition({box_x + 24.f, box_y + 16.f});
+    window.draw(info_header);
+
+    // info lines
+    sf::Text info_credit(font_object);
+    info_credit.setCharacterSize(16);
+    info_credit.setFillColor(sf::Color(160, 170, 190));
+    info_credit.setString("Created by Jeremi Lipiec for the Advanced C++ course.");
+    info_credit.setPosition({box_x + 24.f, box_y + 48.f});
+    window.draw(info_credit);
+
+    vector<pair<string,string>> info_lines = {
+        {"Traffic simulation",  "Simulate road traffic in real time. Vehicles find the shortest path between intersections using Dijkstra's algorithm and respect traffic lights and one-way roads."},
+        {"Loading map files",   "Type a file path or click 'Load file' to open a file browser and select a .ezrdr graph file. The simulation reloads instantly with the new road network."},
+        {"Creating map files",  "Map files are plain-text adjacency matrices in CSV format. Each row i and column j holds 1 if a road exists from intersection i to j, or 0 otherwise. One-way roads are encoded by setting only one direction to 1."},
+        {"Spawning vehicles",   "During simulation, click any intersection on the map to instantly spawn a random vehicle (car, bike or bus) there. It will immediately find a path to a random destination and join the traffic."},
+    };
+
+    float line_y = box_y + 82.f;
+    for (auto &[heading, body] : info_lines)
+    {
+        sf::Text h(font_object);
+        h.setCharacterSize(18);
+        h.setFillColor(sf::Color(100, 180, 255));
+        h.setString("- " + heading + ":");
+        h.setPosition({box_x + 24.f, line_y});
+        window.draw(h);
+        line_y += 26.f;
+
+        sf::Text b(font_object);
+        b.setCharacterSize(16);
+        b.setFillColor(sf::Color(200, 210, 225));
+        b.setString(body);
+        b.setPosition({box_x + 40.f, line_y});
+        window.draw(b);
+        line_y += 34.f;
+    }
 
     // infrastructure graph section
     float section_y = box_y + box_h + 40.f;
@@ -217,7 +251,7 @@ void GuiManager::DrawSimulation()
 
     // speed button
     sim_speed_btn_rect = {{px + 54.f, py}, {44.f, 36.f}};
-    string speed_label = (sim_speed == speeds[0]) ? "x0.5" : (sim_speed == speeds[1]) ? "x1" : (sim_speed == speeds[2]) ? "x2" : (sim_speed == speeds[3]) ? "x5" : "";
+    string speed_label = (sim_speed == speeds[0]) ? "x0.5" : (sim_speed == speeds[1]) ? "x1" : (sim_speed == speeds[2]) ? "x2" : (sim_speed == speeds[3]) ? "x5" : (sim_speed == speeds[4]) ? "x10" : "";
     DrawButton(sim_speed_btn_rect, speed_label, sf::Color(80, 80, 200));
 
     // stop button
@@ -314,6 +348,7 @@ void GuiManager::Update()
                         if(sim_speed == speeds[0]) sim_speed = speeds[1];
                         else if(sim_speed == speeds[1]) sim_speed = speeds[2];
                         else if(sim_speed == speeds[2]) sim_speed = speeds[3];
+                        else if(sim_speed == speeds[3]) sim_speed = speeds[4];
                         else sim_speed = speeds[0];
                     }
                 }
@@ -391,8 +426,9 @@ void GuiManager::Update()
 
 void GuiManager::DrawMouseCursor()
 {
-    sf::CircleShape shape(5.f);
-    shape.setPosition(sf::Vector2f(mouse_position.x - 5.f, mouse_position.y - 5.f));
-    shape.setFillColor(sf::Color::Blue);
+
+    sf::CircleShape shape(mouse_size);
+    shape.setPosition(sf::Vector2f(mouse_position.x - mouse_size, mouse_position.y - mouse_size));
+    shape.setFillColor(mouse_color);
     window.draw(shape);
 }
