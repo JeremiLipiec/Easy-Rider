@@ -30,16 +30,17 @@ void Vehicle::Setup()
     Intersection &current = Simulation::getInstance()->infrastructure.intersections[current_intersection_id];
     Intersection &next = Simulation::getInstance()->infrastructure.intersections[next_intersection_id];
 
-    sf::Vector2f dir = next.position - current.position;
+    sf::Vector2f dir = next.local_position - current.local_position;
     dir = dir / dir.length();
     sf::Vector2f right = {-dir.y, dir.x};
 
     auto &infra = Simulation::getInstance()->infrastructure;
     moving_angle = dir.angle();
-    position = current.position
+    position = current.local_position
              + dir   * (infra.intersection_size / 2.f + 1.f)
              + right * (infra.road_thickness / 4.f);
 }
+
 
 vector<int> Vehicle::CalculatePath()
 {
@@ -205,8 +206,22 @@ void Vehicle::Update()
             return;
         is_spawned = true;
         sf::Vector2f forward = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
-        collision_point_front_position = position + forward * (car_length / 2.f + 30.f + 20.f * (speed - 1));
+        sf::Vector2f gpos = position + Simulation::getInstance()->infrastructure.drawing_origin;
+        collision_point_front_position = gpos + forward * (car_length / 2.f + 30.f + 20.f * (speed - 1));
         return;
+    }
+
+    // refresh global bounding box and collision points from current local position
+    {
+        sf::Vector2f gpos = position + Simulation::getInstance()->infrastructure.drawing_origin;
+        sf::RectangleShape temp({car_length, car_width});
+        temp.setOrigin({car_length / 2.f, car_width / 2.f});
+        temp.setPosition(gpos);
+        temp.setRotation(moving_angle);
+        boundingBox = temp.getGlobalBounds();
+        sf::Vector2f fwd = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
+        collision_point_front_position = gpos + fwd * (car_length / 2.f + 30.f + car_width * (speed - 1));
+        collision_point_mask_position  = gpos + fwd * (car_length / 2.f + 10.f);
     }
 
     Intersection &next_intersection = Simulation::getInstance()->infrastructure.intersections[next_intersection_id];
@@ -308,8 +323,9 @@ void Vehicle::Update()
     }
 
     forward = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
-    collision_point_front_position = position + forward * (car_length / 2.f + 30.f + car_width * (speed - 1));
-    collision_point_mask_position = position + forward * (car_length / 2.f + 10);
+    sf::Vector2f gpos = position + Simulation::getInstance()->infrastructure.drawing_origin;
+    collision_point_front_position = gpos + forward * (car_length / 2.f + 30.f + car_width * (speed - 1));
+    collision_point_mask_position = gpos + forward * (car_length / 2.f + 10);
 }
 
 bool Vehicle::PointsCollidingWithCar(){
@@ -321,6 +337,7 @@ bool Vehicle::PointsCollidingWithCar(){
     }
     return false;
 }
+
 
 bool Vehicle::PointsCollidingWithRedLight(Intersection next_intersection){
     if (!(bool)boundingBox.findIntersection(next_intersection.boundingBox))
@@ -341,10 +358,12 @@ void Vehicle::Draw()
     if (!is_spawned)
         return;
 
+    sf::Vector2f global_pos = position + Simulation::getInstance()->infrastructure.drawing_origin;
+
     // draw the vehicle
     sf::RectangleShape vehicle_shape({car_length, car_width});
     vehicle_shape.setOrigin({car_length / 2.f, car_width / 2.f});
-    vehicle_shape.setPosition(position);
+    vehicle_shape.setPosition(global_pos);
     vehicle_shape.setRotation(moving_angle);
     GuiManager::getInstance()->window.draw(vehicle_shape);
 
@@ -360,7 +379,7 @@ void Vehicle::Draw()
         boundingRect.setOutlineThickness(1.f);
         GuiManager::getInstance()->window.draw(boundingRect);
 
-        GuiManager::getInstance()->DrawText(to_string(turning_direction), position);
+        GuiManager::getInstance()->DrawText(to_string(turning_direction), global_pos);
 
         // draw collision points
         sf::CircleShape collision_point_shape;

@@ -12,8 +12,7 @@ class Simulation;
 class Infrastructure {
 public:
 
-    float drawing_start_x = 100.f;
-    float drawing_start_y = 100.f;
+    sf::Vector2f drawing_origin = {100.f, 100.f};
     float intersection_distance = 300.f;
     float road_thickness = 70.f;
     float intersection_size = 70.f;
@@ -28,6 +27,8 @@ public:
     Infrastructure();
 
     void Setup(int _intersection_count);
+
+    void UpdatePositions(); // call after changing drawing_origin to move the entire infrastructure
 
     void Update();
 

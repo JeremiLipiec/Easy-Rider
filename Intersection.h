@@ -9,7 +9,8 @@ class Intersection {
     public:
 
     int id;
-    sf::Vector2f position; // center point of intersection
+    sf::Vector2f local_position; // center point relative to drawing_origin
+    sf::Vector2f position; // global screen position = local_position + drawing_origin
     bool has_traffic_lights;
     bool used;
     sf::FloatRect boundingBox;
@@ -20,7 +21,9 @@ class Intersection {
     bool active_light_directions[4] = {false, false, false, false}; // 0Top 1Right 2Down 3Left
     short current_green_light_direction; // 0Top 1Right 2Down 3Left
 
-    Intersection(int _id, sf::Vector2f _position, bool _has_traffic_lights);
+    Intersection(int _id, sf::Vector2f _local_position, bool _has_traffic_lights);
+
+    void UpdateGlobalPosition(); // recompute position, boundingBox, light_boxes from local_position + drawing_origin // call after drawing_origin changes
 
     void Update();
 

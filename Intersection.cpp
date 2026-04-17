@@ -6,26 +6,59 @@
 
 using namespace std;
 
-Intersection::Intersection(int _id, sf::Vector2f _position, bool _has_traffic_lights)
+Intersection::Intersection(int _id, sf::Vector2f _local_position, bool _has_traffic_lights)
 {
     id = _id;
-    position = _position;
+    local_position = _local_position;
     has_traffic_lights = _has_traffic_lights;
     used = false;
     current_green_light_direction = 0;
-    boundingBox.position = {position.x - Simulation::getInstance()->infrastructure.intersection_size / 2, position.y - Simulation::getInstance()->infrastructure.intersection_size / 2};
-    boundingBox.size = {Simulation::getInstance()->infrastructure.intersection_size, Simulation::getInstance()->infrastructure.intersection_size};
-    SpawnLightBoxes();
-    srand(position.x * position.y * id * 123865128);
+    srand((int)(local_position.x * 73856093) ^ (int)(local_position.y * 19349663) ^ (id * 83492791));
     _time = rand() % (120 - 1);
+    SpawnLightBoxes();
+    UpdateGlobalPosition();
+}
+
+void Intersection::UpdateGlobalPosition()
+{
+    position = local_position + Simulation::getInstance()->infrastructure.drawing_origin;
+
+    float isize = Simulation::getInstance()->infrastructure.intersection_size;
+    boundingBox.position = {position.x - isize / 2.f, position.y - isize / 2.f};
+    boundingBox.size = {isize, isize};
+
+    if (!has_traffic_lights)
+        return;
+
+    float offset = isize / 2.f;
+    float size   = isize / 3.f;
+    float thickness = 5.f;
+
+    // setup light boxes
+    if (active_light_directions[0])
+    {
+        light_boxes[0].position = {position.x - offset, position.y - offset - thickness};
+        light_boxes[0].size = {size, thickness};
+    }
+    if (active_light_directions[1])
+    {
+        light_boxes[1].position = {position.x + offset + thickness, position.y - offset};
+        light_boxes[1].size = {-thickness, size};
+    }
+    if (active_light_directions[2])
+    {
+        light_boxes[2].position = {position.x + offset, position.y + offset + thickness};
+        light_boxes[2].size = {-size, -thickness};
+    }
+    if (active_light_directions[3])
+    {
+        light_boxes[3].position = {position.x - offset - thickness, position.y + offset};
+        light_boxes[3].size = {thickness, -size};
+    }
 }
 
 void Intersection::SpawnLightBoxes()
 {
-    float offset = Simulation::getInstance()->infrastructure.intersection_size / 2.f;
-    float size = Simulation::getInstance()->infrastructure.intersection_size / 3.f;
-    float thickness = 5.f;
-
     // setup active lights based on infrastructure map
     int map_size = Simulation::getInstance()->infrastructure.map_size;
     int intersection_count = Simulation::getInstance()->infrastructure.intersection_count;
@@ -63,32 +96,7 @@ void Intersection::SpawnLightBoxes()
         has_traffic_lights = false;
         return;
     }
-
-    // setup light boxes
-    if (active_light_directions[0])
-    {
-        light_boxes[0].position = {position.x - offset, position.y - offset - thickness};
-        light_boxes[0].size = {size, thickness};
-    }
-
-    if (active_light_directions[1])
-    {
-
-        light_boxes[1].position = {position.x + offset + thickness, position.y - offset};
-        light_boxes[1].size = {-thickness, size};
-    }
-
-    if (active_light_directions[2])
-    {
-        light_boxes[2].position = {position.x + offset, position.y + offset + thickness};
-        light_boxes[2].size = {-size, -thickness};
-    }
-
-    if (active_light_directions[3])
-    {
-        light_boxes[3].position = {position.x - offset - thickness, position.y + offset};
-        light_boxes[3].size = {thickness, -size};
-    }
+    // light box positions are set in Updateposition
 }
 
 void Intersection::Update()
@@ -107,7 +115,7 @@ void Intersection::Update()
 
         _time = 0;
     }
-    _time++;
+    _time++;   
 }
 
 void Intersection::Draw()

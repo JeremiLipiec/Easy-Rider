@@ -33,6 +33,11 @@ void Road::Setup(){
     line_start_position = intersection_a.position + dir * half_intersection + perp_offset;
 }
 
+void Road::UpdateGlobalPosition()
+{
+    Setup();
+}
+
 void Road::Draw(){
     sf::RectangleShape road_shape({road_length, Simulation::getInstance()->infrastructure.road_thickness});
     road_shape.setPosition(line_start_position);

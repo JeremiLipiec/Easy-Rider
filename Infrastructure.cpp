@@ -2,6 +2,7 @@
 #include <cmath>
 #include "Infrastructure.h"
 #include "GuiManager.h"
+#include "Simulation.h"
 
 using namespace std;
 
@@ -47,8 +48,8 @@ void Infrastructure::GenerateMap()
     {
         for (int x = 0; x < map_size; x++)
         {
-            sf::Vector2f intersection_position(drawing_start_x + intersection_distance * (intersection_id % map_size), drawing_start_y + intersection_distance * (intersection_id / map_size));
-            intersections.push_back(Intersection(intersection_id++, intersection_position, true));
+            sf::Vector2f local_pos(intersection_distance * (intersection_id % map_size), intersection_distance * (intersection_id / map_size));
+            intersections.push_back(Intersection(intersection_id++, local_pos, true));
         }
     }
 
@@ -66,12 +67,20 @@ void Infrastructure::GenerateMap()
     }
 }
 
-void Infrastructure::Update()
+void Infrastructure::UpdatePositions()
 {
     for (Intersection &i : intersections)
-    {
+        i.UpdateGlobalPosition();
+    for (Road &r : roads)
+        r.UpdateGlobalPosition();
+}
+
+void Infrastructure::Update()
+{
+    UpdatePositions();
+
+    for (Intersection &i : intersections)
         i.Update();
-    }
 }
 
 void Infrastructure::Draw()

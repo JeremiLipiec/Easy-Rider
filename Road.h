@@ -20,6 +20,8 @@ class Road {
 
     void Setup();
 
+    void UpdateGlobalPosition(); // recompute line_start_position from intersection global positions
+
     void Update();
 
     void Draw();

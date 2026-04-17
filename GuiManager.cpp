@@ -36,6 +36,20 @@ void GuiManager::DrawText(string text, sf::Vector2f position){
 void GuiManager::Update(){
     mouse_position = sf::Mouse::getPosition(window);
 
+    auto &origin = Simulation::getInstance()->infrastructure.drawing_origin;
+    bool mouse_down = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+
+    if (mouse_down && !is_dragging)
+    {
+        is_dragging = true;
+        drag_anchor_mouse = mouse_position;
+        drag_anchor_origin = origin;
+    }
+    if (!mouse_down)
+        is_dragging = false;
+    if (is_dragging)
+        origin = drag_anchor_origin + sf::Vector2f(mouse_position - drag_anchor_mouse);
+
     while (const optional event = window.pollEvent())
     {
         if (event->is<sf::Event::Closed>())
