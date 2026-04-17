@@ -23,10 +23,6 @@ void Simulation::Draw(){
     traffic.Draw();
 }
 
-void Simulation::AddVehicle(float max_speed, float length, float accerleration, float breaking_force, int start_intersection_id, int finish_intersection_id){
-    traffic.AddVehicle(max_speed, length, accerleration, breaking_force, start_intersection_id, finish_intersection_id);
-}
-
 void Simulation::Update(){
     infrastructure.Update();
     traffic.Update();

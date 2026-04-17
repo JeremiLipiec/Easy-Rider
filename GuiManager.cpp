@@ -24,7 +24,7 @@ GuiManager *GuiManager::getInstance()
 
 void GuiManager::SetupWindow()
 {
-    window.create(sf::VideoMode({1000, 1000}), "Easy Rider Jeremi Lipiec 348407");
+    window.create(sf::VideoMode({1920, 1080}), "Easy Rider Jeremi Lipiec 348407");
     window.setFramerateLimit(60);
 }
 

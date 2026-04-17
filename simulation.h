@@ -24,5 +24,4 @@ public:
 
     void Update();
 
-    void AddVehicle(float max_speed, float length, float accerleration, float breaking_force, int start_intersection_id, int finish_intersection_id);
 };

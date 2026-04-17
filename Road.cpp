@@ -39,28 +39,54 @@ void Road::UpdateGlobalPosition()
 }
 
 void Road::Draw(){
-    sf::RectangleShape road_shape({road_length, Simulation::getInstance()->infrastructure.road_thickness});
+    auto &infra = Simulation::getInstance()->infrastructure;
+    float thickness = infra.road_thickness;
+    bool one_way = (infra.infrastructure_map[intersection_b_id][intersection_a_id] == 0);
+
+    sf::RectangleShape road_shape({road_length, thickness});
     road_shape.setPosition(line_start_position);
     road_shape.setRotation(intersections_angle);
     boundingBox = road_shape.getGlobalBounds();
 
     // count vehicles on this road
     int count = 0;
-    for(int i = 0; i < Simulation::getInstance()->traffic.vehicles.size(); i++)
+    for (int i = 0; i < (int)infra.intersection_count; i++)
         if ((bool)boundingBox.findIntersection(Simulation::getInstance()->traffic.vehicles[i].boundingBox))
             count++;
 
     // calc road tint
     count = count > 2 ? std::clamp(count, 0, 5) : 0;
     float t = count / 5.f;
-    float tint = t * t;
-    sf::Color road_color(static_cast<uint8_t>(165 * tint + 90), 90, 90);
+    sf::Color road_color(static_cast<uint8_t>(165 * (t*t) + 90), 90, 90);
 
-    // draw the rectangle
-    road_shape.setFillColor(road_color);
-    GuiManager::getInstance()->window.draw(road_shape);
+    if (!one_way)
+    {
+        road_shape.setFillColor(road_color);
+        GuiManager::getInstance()->window.draw(road_shape);
+    }
+    else
+    {
+        // direction vectors
+        sf::Vector2f dir = {std::cos(intersections_angle.asRadians()), std::sin(intersections_angle.asRadians())};
+        sf::Vector2f perp_left = {dir.y, -dir.x};
 
-    if(GuiManager::getInstance()->draw_debug){
+        // excluded lane (left/oncoming half) — dark gray
+        sf::RectangleShape excluded({road_length, thickness / 2.f});
+        excluded.setPosition(line_start_position);
+        excluded.setRotation(intersections_angle);
+        excluded.setFillColor(sf::Color(20, 20, 20));
+        GuiManager::getInstance()->window.draw(excluded);
+
+        // used lane (right half, direction A→B)
+        sf::Vector2f used_start = line_start_position - perp_left * (thickness / 2.f);
+        sf::RectangleShape used({road_length, thickness / 2.f});
+        used.setPosition(used_start);
+        used.setRotation(intersections_angle);
+        used.setFillColor(road_color);
+        GuiManager::getInstance()->window.draw(used);
+    }
+
+    if (GuiManager::getInstance()->draw_debug){
         sf::RectangleShape boundingRect;
         boundingRect.setPosition(boundingBox.position);
         boundingRect.setSize(boundingBox.size);
@@ -68,5 +94,5 @@ void Road::Draw(){
         boundingRect.setOutlineColor(sf::Color::Blue);
         boundingRect.setOutlineThickness(1.f);
         GuiManager::getInstance()->window.draw(boundingRect);
-    }    
+    }
 }

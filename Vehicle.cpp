@@ -9,10 +9,11 @@
 
 using namespace std;
 
-Vehicle::Vehicle(float _max_speed, float _car_length, float _accerleration, float _breaking_force, int _start_intersection_id, int _finish_intersection_id)
+Vehicle::Vehicle(float _max_speed, float _car_length, float _car_width, float _accerleration, float _breaking_force, int _start_intersection_id, int _finish_intersection_id)
 {
     max_speed = _max_speed;
     car_length = _car_length;
+    car_width = _car_width;
     accerleration = _accerleration;
     breaking_force = _breaking_force;
     start_intersection_id = _start_intersection_id;
@@ -269,9 +270,9 @@ void Vehicle::Update()
             entry_point = position; // arc the car center
 
             float road_t = Simulation::getInstance()->infrastructure.road_thickness;
-            if (turning_direction == 0)       turning_radius = road_t;        // left:   70
-            else if (turning_direction == 2)  turning_radius = road_t / 2.f;  // right:  35
-            else                              turning_radius = road_t / 4.f;  // U-turn: 17.5
+            if (turning_direction == 0)       turning_radius = 3.f * road_t / 4.f + car_length / 2.f; // left
+            else if (turning_direction == 2)  turning_radius = road_t / 4.f + car_length / 2.f;        // right
+            else                              turning_radius = road_t / 4.f;                            // U-turn
         }
 
         if (turning_direction == 1 || turning_direction == -1)

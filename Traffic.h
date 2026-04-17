@@ -2,6 +2,9 @@
 
 #include <SFML/Graphics.hpp>
 #include "Vehicle.h"
+#include "Car.h"
+#include "Bike.h"
+#include "Bus.h"
 
 using namespace std;
 
@@ -10,7 +13,9 @@ class Traffic{
 
     vector<Vehicle> vehicles;
 
-    void AddVehicle(float max_speed, float length, float accerleration, float breaking_force, int start_intersection_id, int finish_intersection_id);
+    void AddCar(int start_id, int finish_id);
+    void AddBike(int start_id, int finish_id);
+    void AddBus(int start_id, int finish_id);
 
     void Update();
 

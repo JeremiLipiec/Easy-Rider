@@ -12,7 +12,10 @@ private:
     vector<int> path;
     int current_intersection_id = 0;
     int next_intersection_id = 0;
+protected:
     float car_width = 20.f;
+
+private:
 
     // turning vars
     sf::Vector2f entry_point;
@@ -44,7 +47,7 @@ public:
     sf::Angle moving_angle;
     sf::FloatRect boundingBox;
 
-    Vehicle(float _max_speed, float _length, float _accerleration, float _breaking_force, int _start_intersection_id, int _finish_intersection_id);
+    Vehicle(float _max_speed, float _length, float _car_width, float _accerleration, float _breaking_force, int _start_intersection_id, int _finish_intersection_id);
 
     void Setup();
 

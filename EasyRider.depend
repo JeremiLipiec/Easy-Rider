@@ -1613,14 +1613,14 @@
 1771793814 b:\_studia_szkola\pw\przedmioty\zaawansowane c++\projekt\easyrider\vechicle.h
 	<SFML/Graphics.hpp>
 
-1776435573 source:c:\users\jeremi\desktop\easyrider\main.cpp
+1776440914 source:c:\users\jeremi\desktop\easyrider\main.cpp
 	<SFML/Graphics.hpp>
 	<cstdlib>
 	<ctime>
 	"Simulation.h"
 	"GuiManager.h"
 
-1776282150 c:\users\jeremi\desktop\easyrider\simulation.h
+1776437214 c:\users\jeremi\desktop\easyrider\simulation.h
 	<SFML/Graphics.hpp>
 	"Infrastructure.h"
 	"Traffic.h"
@@ -1640,25 +1640,28 @@
 1771796134 c:\users\jeremi\desktop\easyrider\vechicle.h
 	<SFML/Graphics.hpp>
 
-1772131433 c:\users\jeremi\desktop\easyrider\traffic.h
+1776438707 c:\users\jeremi\desktop\easyrider\traffic.h
 	<SFML/Graphics.hpp>
 	"Vehicle.h"
+	"Car.h"
+	"Bike.h"
+	"Bus.h"
 
-1776430991 c:\users\jeremi\desktop\easyrider\vehicle.h
+1776438685 c:\users\jeremi\desktop\easyrider\vehicle.h
 	<SFML/Graphics.hpp>
 	"Infrastructure.h"
 
-1776435731 source:c:\users\jeremi\desktop\easyrider\simulation.cpp
+1776437317 source:c:\users\jeremi\desktop\easyrider\simulation.cpp
 	<SFML/Graphics.hpp>
 	"Simulation.h"
 	"GuiManager.h"
 
-1776285617 source:c:\users\jeremi\desktop\easyrider\traffic.cpp
+1776438715 source:c:\users\jeremi\desktop\easyrider\traffic.cpp
 	<SFML/Graphics.hpp>
 	"Simulation.h"
 	"Traffic.h"
 
-1776431075 source:c:\users\jeremi\desktop\easyrider\vehicle.cpp
+1776439196 source:c:\users\jeremi\desktop\easyrider\vehicle.cpp
 	<SFML/Graphics.hpp>
 	<queue>
 	<limits>
@@ -1675,26 +1678,35 @@
 	"GuiManager.h"
 	"Simulation.h"
 
-1776435849 source:c:\users\jeremi\desktop\easyrider\guimanager.cpp
+1776438848 source:c:\users\jeremi\desktop\easyrider\guimanager.cpp
 	<SFML/Graphics.hpp>
 	"GuiManager.h"
 	"Simulation.h"
 
-1776436694 c:\users\jeremi\desktop\easyrider\guimanager.h
+1776440919 c:\users\jeremi\desktop\easyrider\guimanager.h
 	<SFML/Graphics.hpp>
 
-1776429281 source:c:\users\jeremi\desktop\easyrider\intersection.cpp
+1776441197 source:c:\users\jeremi\desktop\easyrider\intersection.cpp
 	<SFML/Graphics.hpp>
 	"Intersection.h"
 	"GuiManager.h"
 	"Simulation.h"
 	<cstdlib>
 
-1776429173 source:c:\users\jeremi\desktop\easyrider\road.cpp
+1776440392 source:c:\users\jeremi\desktop\easyrider\road.cpp
 	<SFML/Graphics.hpp>
 	"Road.h"
 	"GuiManager.h"
 	"Simulation.h"
 	"Intersection.h"
 	<algorithm>
+
+1776438663 c:\users\jeremi\desktop\easyrider\car.h
+	"Vehicle.h"
+
+1776438654 c:\users\jeremi\desktop\easyrider\bike.h
+	"Vehicle.h"
+
+1776438658 c:\users\jeremi\desktop\easyrider\bus.h
+	"Vehicle.h"
 

@@ -66,22 +66,19 @@ void Intersection::SpawnLightBoxes()
 
     int x = id % map_size;
 
-    active_light_directions[0] = (id >= map_size) && (infra_map[id][id - map_size] == 1);
-    active_light_directions[1] = (x < map_size - 1) && (infra_map[id][id + 1] == 1);
-    active_light_directions[2] = (id + map_size < intersection_count) && (infra_map[id][id + map_size] == 1);
-    active_light_directions[3] = (x > 0) && (infra_map[id][id - 1] == 1);
+    active_light_directions[0] = (id >= map_size) && (infra_map[id - map_size][id] == 1);
+    active_light_directions[1] = (x < map_size - 1) && (infra_map[id + 1][id] == 1);
+    active_light_directions[2] = (id + map_size < intersection_count) && (infra_map[id + map_size][id] == 1);
+    active_light_directions[3] = (x > 0) && (infra_map[id - 1][id] == 1);
 
-    // disable lights check
+    // disable lights check — count all connected roads (both directions)
+    int total_roads = 0;
+    if (id >= map_size           && (infra_map[id - map_size][id] == 1 || infra_map[id][id - map_size] == 1)) total_roads++;
+    if (x < map_size - 1         && (infra_map[id + 1][id] == 1        || infra_map[id][id + 1]        == 1)) total_roads++;
+    if (id + map_size < intersection_count && (infra_map[id + map_size][id] == 1 || infra_map[id][id + map_size] == 1)) total_roads++;
+    if (x > 0                    && (infra_map[id - 1][id] == 1        || infra_map[id][id - 1]        == 1)) total_roads++;
 
-    int neighbour_roads_count = 0;
-    for (int i = 0; i < 4; i++)
-    {
-        if (active_light_directions[i])
-            neighbour_roads_count++;
-    }
-
-    // only 2 roads connected - basically a curve
-    if (neighbour_roads_count <= 2)
+    if (total_roads <= 2)
     {
         has_traffic_lights = false;
         return;
@@ -96,7 +93,6 @@ void Intersection::SpawnLightBoxes()
         has_traffic_lights = false;
         return;
     }
-    // light box positions are set in Updateposition
 }
 
 void Intersection::Update()
