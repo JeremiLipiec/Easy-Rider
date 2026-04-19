@@ -57,6 +57,7 @@ public:
     void SetupReport();
 
     void Update();
+    void Draw();
 
     void DrawButton(sf::FloatRect rect, const string& label, sf::Color color = sf::Color(65, 130, 200));
     void DrawMainMenu();

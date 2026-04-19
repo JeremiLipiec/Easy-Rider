@@ -45,6 +45,7 @@ void GuiManager::SetupWindow()
 {
     window.create(sf::VideoMode({1920, 1080}), "Easy Rider Jeremi Lipiec 348407");
     window.setFramerateLimit(60);
+    active_screen = 0;
 }
 
 void GuiManager::DrawDebugText(string text, sf::Vector2f position)
@@ -55,21 +56,6 @@ void GuiManager::DrawDebugText(string text, sf::Vector2f position)
     text_object.setString(text);
     text_object.setPosition(position);
     window.draw(text_object);
-}
-
-void GuiManager::SetupMainMenu()
-{
-    active_screen = 0;
-}
-
-void GuiManager::SetupSimulation()
-{
-    active_screen = 1;
-}
-
-void GuiManager::SetupReport()
-{
-    active_screen = 2;
 }
 
 void GuiManager::DrawButton(sf::FloatRect rect, const string &label, sf::Color color)
@@ -138,11 +124,11 @@ void GuiManager::DrawMainMenu()
     info_credit.setPosition({box_x + 24.f, box_y + 48.f});
     window.draw(info_credit);
 
-    vector<pair<string,string>> info_lines = {
-        {"Traffic simulation",  "Simulate road traffic in real time. Vehicles find the shortest path between intersections using Dijkstra's algorithm and respect traffic lights and one-way roads."},
-        {"Loading map files",   "Type a file path or click 'Load file' to open a file browser and select a .ezrdr graph file. The simulation reloads instantly with the new road network."},
-        {"Creating map files",  "Map files are plain-text adjacency matrices in CSV format. Each row i and column j holds 1 if a road exists from intersection i to j, or 0 otherwise. One-way roads are encoded by setting only one direction to 1."},
-        {"Spawning vehicles",   "During simulation, click any intersection on the map to instantly spawn a random vehicle (car, bike or bus) there. It will immediately find a path to a random destination and join the traffic."},
+    vector<pair<string, string>> info_lines = {
+        {"Traffic simulation", "Simulate road traffic in real time. Vehicles find the shortest path between intersections using Dijkstra's algorithm and respect traffic lights and one-way roads."},
+        {"Loading map files", "Type a file path or click 'Load file' to open a file browser and select a .ezrdr graph file. The simulation reloads instantly with the new road network."},
+        {"Creating map files", "Map files are plain-text adjacency matrices in CSV format. Each row i and column j holds 1 if a road exists from intersection i to j, or 0 otherwise. One-way roads are encoded by setting only one direction to 1."},
+        {"Spawning vehicles", "During simulation, click any intersection on the map to instantly spawn a random vehicle (car, bike or bus) there. It will immediately find a path to a random destination and join the traffic."},
     };
 
     float line_y = box_y + 82.f;
@@ -194,7 +180,7 @@ void GuiManager::DrawMainMenu()
     sf::Text input_text(font_object);
     input_text.setCharacterSize(18);
     input_text.setFillColor(file_path_input.empty() ? sf::Color(100, 115, 140) : sf::Color::White);
-    input_text.setString(file_path_input.empty() ? "File path..." : file_path_input);
+    input_text.setString(file_path_input.empty() ? "./graphs/graph.ezrdr" : file_path_input);
     input_text.setPosition({box_x + 10.f, input_y + 10.f});
     window.draw(input_text);
 
@@ -251,7 +237,11 @@ void GuiManager::DrawSimulation()
 
     // speed button
     sim_speed_btn_rect = {{px + 54.f, py}, {44.f, 36.f}};
-    string speed_label = (sim_speed == speeds[0]) ? "x0.5" : (sim_speed == speeds[1]) ? "x1" : (sim_speed == speeds[2]) ? "x2" : (sim_speed == speeds[3]) ? "x5" : (sim_speed == speeds[4]) ? "x10" : "";
+    string speed_label = (sim_speed == speeds[0]) ? "x0.5" : (sim_speed == speeds[1]) ? "x1"
+                                                         : (sim_speed == speeds[2])   ? "x2"
+                                                         : (sim_speed == speeds[3])   ? "x5"
+                                                         : (sim_speed == speeds[4])   ? "x10"
+                                                                                      : "";
     DrawButton(sim_speed_btn_rect, speed_label, sf::Color(80, 80, 200));
 
     // stop button
@@ -304,6 +294,26 @@ void GuiManager::DrawReport()
     window.draw(title);
 }
 
+void GuiManager::Draw()
+{
+    DrawMouseCursor();
+
+    switch (active_screen)
+    {
+    case 0:
+        DrawMainMenu();
+        break;
+    case 1:
+        DrawSimulation();
+        break;
+    case 2:
+        DrawReport();
+        break;
+    default:
+        break;
+    }
+}
+
 void GuiManager::Update()
 {
     mouse_position = sf::Vector2f(sf::Mouse::getPosition(window));
@@ -334,58 +344,7 @@ void GuiManager::Update()
         if (const auto *resized = event->getIf<sf::Event::Resized>())
             window.setView(sf::View(sf::FloatRect({0.f, 0.f}, sf::Vector2f(resized->size))));
 
-        if (active_screen == 1)
-        {
-            if (const auto *clicked = event->getIf<sf::Event::MouseButtonPressed>())
-            {
-                if (clicked->button == sf::Mouse::Button::Left)
-                {
-                    if (sim_pause_btn_rect.contains(mouse_position))
-                        sim_paused = !sim_paused;
-                    if (sim_stop_btn_rect.contains(mouse_position))
-                        SetupMainMenu();
-                    if (sim_speed_btn_rect.contains(mouse_position)){
-                        if(sim_speed == speeds[0]) sim_speed = speeds[1];
-                        else if(sim_speed == speeds[1]) sim_speed = speeds[2];
-                        else if(sim_speed == speeds[2]) sim_speed = speeds[3];
-                        else if(sim_speed == speeds[3]) sim_speed = speeds[4];
-                        else sim_speed = speeds[0];
-                    }
-                }
-            }
-
-            if (const auto *released = event->getIf<sf::Event::MouseButtonReleased>())
-            {
-                if (released->button == sf::Mouse::Button::Left)
-                {
-                    sf::Vector2f delta = mouse_position - drag_anchor_mouse;
-                    bool is_click = (delta.x * delta.x + delta.y * delta.y) < 64.f; // < 8px movement
-                    if (is_click && mouse_position.x > 220.f)
-                    {
-                        auto &infra = Simulation::getInstance()->infrastructure;
-                        auto &traffic = Simulation::getInstance()->traffic;
-                        int n = infra.intersection_count;
-                        for (auto &i : infra.intersections)
-                        {
-                            if (i.used && i.boundingBox.contains(mouse_position))
-                            {
-                                int end_id = rand() % (n - 1);
-                                if (end_id >= i.id) end_id++;
-                                switch (rand() % 3)
-                                {
-                                    case 0: traffic.AddCar(i.id, end_id);  break;
-                                    case 1: traffic.AddBike(i.id, end_id); break;
-                                    case 2: traffic.AddBus(i.id, end_id);  break;
-                                }
-                                traffic.vehicles.back().spawn_timer = 0;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
+        // simulation logic
         if (active_screen == 0)
         {
             if (const auto *clicked = event->getIf<sf::Event::MouseButtonPressed>())
@@ -406,7 +365,7 @@ void GuiManager::Update()
                     }
 
                     if (mm_start_btn_rect.contains(mouse_position))
-                        SetupSimulation();
+                        active_screen = 1;
                 }
             }
 
@@ -420,6 +379,77 @@ void GuiManager::Update()
                         file_path_input += static_cast<char>(typed->unicode);
                 }
             }
+        }
+
+        // main menu logic
+        if (active_screen == 1)
+        {
+            if (const auto *clicked = event->getIf<sf::Event::MouseButtonPressed>())
+            {
+                if (clicked->button == sf::Mouse::Button::Left)
+                {
+                    if (sim_pause_btn_rect.contains(mouse_position))
+                        sim_paused = !sim_paused;
+                    if (sim_stop_btn_rect.contains(mouse_position))
+                        active_screen = 0;
+                    if (sim_speed_btn_rect.contains(mouse_position))
+                    {
+                        if (sim_speed == speeds[0])
+                            sim_speed = speeds[1];
+                        else if (sim_speed == speeds[1])
+                            sim_speed = speeds[2];
+                        else if (sim_speed == speeds[2])
+                            sim_speed = speeds[3];
+                        else if (sim_speed == speeds[3])
+                            sim_speed = speeds[4];
+                        else
+                            sim_speed = speeds[0];
+                    }
+                }
+            }
+
+            if (const auto *released = event->getIf<sf::Event::MouseButtonReleased>())
+            {
+                if (released->button == sf::Mouse::Button::Left)
+                {
+                    sf::Vector2f delta = mouse_position - drag_anchor_mouse;
+                    bool is_click = (delta.x * delta.x + delta.y * delta.y) < 64.f; // < 8px movement
+                    if (is_click && mouse_position.x > 220.f)
+                    {
+                        auto &infra = Simulation::getInstance()->infrastructure;
+                        auto &traffic = Simulation::getInstance()->traffic;
+                        int n = infra.intersection_count;
+                        for (auto &i : infra.intersections)
+                        {
+                            if (i.used && i.boundingBox.contains(mouse_position))
+                            {
+                                int end_id = rand() % (n - 1);
+                                if (end_id >= i.id)
+                                    end_id++;
+                                switch (rand() % 3)
+                                {
+                                case 0:
+                                    traffic.AddCar(i.id, end_id);
+                                    break;
+                                case 1:
+                                    traffic.AddBike(i.id, end_id);
+                                    break;
+                                case 2:
+                                    traffic.AddBus(i.id, end_id);
+                                    break;
+                                }
+                                traffic.vehicles.back().spawn_timer = 0;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // report screen logic
+        if (active_screen == 2)
+        {
         }
     }
 }

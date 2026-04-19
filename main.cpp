@@ -9,15 +9,17 @@ using namespace std;
 void setup();
 void draw();
 
-Simulation* simulation;
-GuiManager* gui_manager;
+Simulation *simulation;
+GuiManager *gui_manager;
+
+static int half_frame = 0;
 
 int main()
 {
     srand(time(nullptr));
 
     gui_manager = GuiManager::getInstance();
-    gui_manager->SetupWindow();
+    
 
     setup();
 
@@ -29,43 +31,32 @@ int main()
     }
 }
 
-void setup(){
-    simulation = Simulation::getInstance(1);
-    simulation->LoadMap("graphs/graph1.ezrdr");
-    simulation->InitTraffic();
+void setup()
+{
+    gui_manager->SetupWindow();
 
-    gui_manager->SetupMainMenu();
+    simulation = Simulation::getInstance(1);
+    simulation->LoadMap("graphs/graph.ezrdr");
+    simulation->InitTraffic();
 }
 
-void draw(){
+void draw()
+{
+    gui_manager->Draw();
     gui_manager->Update();
 
-    switch (gui_manager->active_screen)
+    if (gui_manager->active_screen == 1)
     {
-        case 0:
-            gui_manager->DrawMainMenu();
-            break;
-        case 1:
+        if (!gui_manager->sim_paused)
         {
-            static int half_frame = 0;
-            if (!gui_manager->sim_paused)
-            {
-                bool run = (gui_manager->sim_speed == 0.5f) ? (half_frame++ % 2 == 0) : true;
-                int ticks = (gui_manager->sim_speed >= 1.f) ? (int)gui_manager->sim_speed : 1;
-                if (run)
-                    for (int t = 0; t < ticks; t++)
-                        simulation->Update();
-            }
-            else
-                simulation->infrastructure.UpdatePositions();
-            simulation->Draw();
-            gui_manager->DrawSimulation();
-            break;
+            bool run = (gui_manager->sim_speed == 0.5f) ? (half_frame++ % 2 == 0) : true;
+            int ticks = (gui_manager->sim_speed >= 1.f) ? (int)gui_manager->sim_speed : 1;
+            if (run)
+                for (int t = 0; t < ticks; t++)
+                    simulation->Update();
         }
-        case 2:
-            gui_manager->DrawReport();
-            break;
+        else
+            simulation->infrastructure.UpdatePositions();
+        simulation->Draw();
     }
-
-    gui_manager->DrawMouseCursor();
 }
