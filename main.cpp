@@ -42,9 +42,6 @@ void setup()
 
 void draw()
 {
-    gui_manager->Draw();
-    gui_manager->Update();
-
     if (gui_manager->active_screen == 1)
     {
         if (!gui_manager->sim_paused)
@@ -59,4 +56,7 @@ void draw()
             simulation->infrastructure.UpdatePositions();
         simulation->Draw();
     }
+
+    gui_manager->Draw();
+    gui_manager->Update();
 }

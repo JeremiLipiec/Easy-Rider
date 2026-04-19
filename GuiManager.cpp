@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <commdlg.h>
 #include <SFML/Graphics.hpp>
+#include <fstream>
 #include "GuiManager.h"
 #include "Simulation.h"
 
@@ -44,7 +45,7 @@ GuiManager *GuiManager::getInstance()
 void GuiManager::SetupWindow()
 {
     window.create(sf::VideoMode({1920, 1080}), "Easy Rider Jeremi Lipiec 348407");
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(framerate);
     active_screen = 0;
 }
 
@@ -280,18 +281,90 @@ void GuiManager::DrawSimulation()
 
 void GuiManager::DrawReport()
 {
+    auto *sim = Simulation::getInstance();
+    auto &traffic = sim->traffic;
+
     sf::Vector2f win(window.getSize());
 
     sf::RectangleShape bg(win);
     bg.setFillColor(sf::Color(28, 38, 56));
     window.draw(bg);
 
+    // title
     sf::Text title(font_object);
     title.setCharacterSize(36);
     title.setFillColor(sf::Color::White);
     title.setString("Simulation report");
     title.setPosition({60.f, 40.f});
     window.draw(title);
+
+    // report box
+    float box_x = 60.f, box_y = 100.f;
+    float box_w = win.x - 120.f, box_h = win.y - 200.f;
+    sf::RectangleShape box({box_w, box_h});
+    box.setPosition({box_x, box_y});
+    box.setFillColor(sf::Color(40, 52, 72));
+    window.draw(box);
+
+    // compute stats
+    int total = (int)traffic.vehicles.size();
+    int active = 0;
+    float avg_spd = 0.f;
+    for (auto &v : traffic.vehicles)
+        if (v.is_spawned)
+        {
+            active++;
+            avg_spd += v.speed;
+        }
+    if (active > 0)
+        avg_spd /= active;
+
+    int ticks = sim->sim_ticks;
+    int secs = ticks / 60;
+    int mins = secs / 60;
+    secs %= 60;
+
+    float py = box_y + 24.f;
+    float px = box_x + 30.f;
+
+    auto draw_row = [&](const string &label, const string &value)
+    {
+        sf::Text lbl(font_object);
+        lbl.setCharacterSize(20);
+        lbl.setFillColor(sf::Color(160, 180, 210));
+        lbl.setString(label);
+        lbl.setPosition({px, py});
+        window.draw(lbl);
+
+        sf::Text val(font_object);
+        val.setCharacterSize(20);
+        val.setFillColor(sf::Color::White);
+        val.setString(value);
+        sf::FloatRect vb = val.getLocalBounds();
+        val.setPosition({box_x + box_w - 30.f - vb.size.x - vb.position.x, py});
+        window.draw(val);
+
+        py += 36.f;
+
+        sf::RectangleShape sep({box_w - 60.f, 1.f});
+        sep.setPosition({px, py - 8.f});
+        sep.setFillColor(sf::Color(60, 75, 100));
+        window.draw(sep);
+    };
+
+    draw_row("Simulation time",
+             (mins > 0 ? to_string(mins) + " min " : "") + to_string(secs) + " sec  (" + to_string(ticks) + " ticks)");
+    draw_row("Vehicles in simulation", to_string(total));
+    draw_row("Average speed", to_string(avg_spd).substr(0, 4));
+    draw_row("Completed journeys", to_string(traffic.completed_journeys));
+
+    // bottom buttons
+    float btn_w = 180.f, btn_h = 44.f;
+    float btn_y = box_y + box_h + 20.f;
+    rp_export_btn_rect = {{box_x, btn_y}, {btn_w, btn_h}};
+    rp_menu_btn_rect = {{box_x + box_w - btn_w, btn_y}, {btn_w, btn_h}};
+    DrawButton(rp_export_btn_rect, "Export report", sf::Color(50, 130, 80));
+    DrawButton(rp_menu_btn_rect, "Main menu", sf::Color(65, 130, 200));
 }
 
 void GuiManager::Draw()
@@ -391,7 +464,7 @@ void GuiManager::Update()
                     if (sim_pause_btn_rect.contains(mouse_position))
                         sim_paused = !sim_paused;
                     if (sim_stop_btn_rect.contains(mouse_position))
-                        active_screen = 0;
+                        active_screen = 2;
                     if (sim_speed_btn_rect.contains(mouse_position))
                     {
                         if (sim_speed == speeds[0])
@@ -450,13 +523,50 @@ void GuiManager::Update()
         // report screen logic
         if (active_screen == 2)
         {
+            if (const auto *clicked = event->getIf<sf::Event::MouseButtonPressed>())
+            {
+                if (clicked->button == sf::Mouse::Button::Left)
+                {
+                    if (rp_menu_btn_rect.contains(mouse_position))
+                        active_screen = 0;
+
+                    if (rp_export_btn_rect.contains(mouse_position))
+                    {
+                        auto *sim = Simulation::getInstance();
+                        auto &traffic = sim->traffic;
+                        int total = (int)traffic.vehicles.size();
+                        int active = 0;
+                        float avg_spd = 0.f;
+                        for (auto &v : traffic.vehicles)
+                            if (v.is_spawned)
+                            {
+                                active++;
+                                avg_spd += v.speed;
+                            }
+                        if (active > 0)
+                            avg_spd /= active;
+                        int ticks = sim->sim_ticks;
+                        int secs = ticks / framerate, mins = secs / framerate;
+                        secs %= framerate;
+
+                        ofstream f("report.txt");
+                        if (f.is_open())
+                        {
+                            f << "=== Easy Rider Simulation Report ===\n\n";
+                            f << "Simulation time: " << mins << " min " << secs << " sec (" << ticks << " ticks)\n";
+                            f << "Vehicles in simulation: " << total << "\n";
+                            f << "Average speed: " << avg_spd << "\n";
+                            f << "Completed journeys: " << traffic.completed_journeys << "\n";
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
 void GuiManager::DrawMouseCursor()
 {
-
     sf::CircleShape shape(mouse_size);
     shape.setPosition(sf::Vector2f(mouse_position.x - mouse_size, mouse_position.y - mouse_size));
     shape.setFillColor(mouse_color);

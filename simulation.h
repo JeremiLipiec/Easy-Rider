@@ -18,6 +18,8 @@ public:
     Infrastructure infrastructure;
     Traffic traffic;
 
+    int sim_ticks = 0;
+
     static Simulation* getInstance(int _intersection_count = 0);
 
     bool LoadMap(const string& path);

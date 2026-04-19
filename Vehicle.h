@@ -43,6 +43,7 @@ public:
     float speed;
     int spawn_timer = 0;
     bool is_spawned = false;
+    bool deleted = false;
     sf::Vector2f position = sf::Vector2f(10.f, 10.f);
     sf::Angle moving_angle;
     sf::FloatRect boundingBox;
@@ -64,4 +65,6 @@ public:
     bool PointsCollidingWithCar();
 
     bool PointsCollidingWithRedLight(Intersection next_intersection);
+
+    void CheckRemoveClick();
 };

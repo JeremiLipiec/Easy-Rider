@@ -114,6 +114,7 @@ void Vehicle::AdvanceToNextIntersection()
         finish_intersection_id = rand() % (infra.intersection_count - 1);
         if (finish_intersection_id >= start_intersection_id)
             finish_intersection_id++;
+        Simulation::getInstance()->traffic.completed_journeys++;
 
         int original = infra.infrastructure_map[start_intersection_id][prev];
         infra.infrastructure_map[start_intersection_id][prev] = 0;
@@ -345,13 +346,22 @@ bool Vehicle::PointsCollidingWithRedLight(Intersection next_intersection){
     {
         for (int i = 0; i < 4; i++)
         {
-            if (next_intersection.light_boxes[i].contains(collision_point_front_position) && next_intersection.current_green_light_direction != i)
+            if (next_intersection.light_boxes[i].contains(collision_point_front_position) && !(next_intersection.current_green_light_direction / 2 == i && next_intersection.current_green_light_direction % 2 == 1))
             {
                 return true;
             }
         }
     }
     return false;
+}
+
+void Vehicle::CheckRemoveClick()
+{
+    if (!is_spawned || !sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
+        return;
+
+    if (boundingBox.contains(GuiManager::getInstance()->mouse_position))
+        deleted = true;
 }
 
 void Vehicle::Draw()

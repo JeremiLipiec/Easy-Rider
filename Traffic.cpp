@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <algorithm>
 #include "Simulation.h"
 #include "Traffic.h"
 
@@ -23,8 +24,12 @@ using namespace std;
     }
 
     void Traffic::Update(){
-        for(Vehicle& v : vehicles){
-            v.Update();
+        for(int i = 0; i < vehicles.size(); i++){
+            vehicles[i].Update();
+            vehicles[i].CheckRemoveClick();
+            if(vehicles[i].deleted){
+                vehicles.erase(vehicles.begin() + i);
+            }
         }
     }
 

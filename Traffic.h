@@ -13,6 +13,8 @@ class Traffic{
 
     vector<Vehicle> vehicles;
 
+    int completed_journeys = 0;
+
     void AddCar(int start_id, int finish_id);
     void AddBike(int start_id, int finish_id);
     void AddBus(int start_id, int finish_id);

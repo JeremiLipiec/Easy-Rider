@@ -55,19 +55,19 @@ void Simulation::InitTraffic()
     int n = infrastructure.intersection_count;
     int start_id, end_id;
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 10; i++) {
         start_id = rand() % n;
         end_id = rand() % (n - 1);
         if (end_id >= start_id) end_id++;
         traffic.AddCar(start_id, end_id);
     }
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 5; i++) {
         start_id = rand() % n;
         end_id = rand() % (n - 1);
         if (end_id >= start_id) end_id++;
         traffic.AddBike(start_id, end_id);
     }
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 5; i++) {
         start_id = rand() % n;
         end_id = rand() % (n - 1);
         if (end_id >= start_id) end_id++;
@@ -83,4 +83,5 @@ void Simulation::Draw(){
 void Simulation::Update(){
     infrastructure.Update();
     traffic.Update();
+    sim_ticks++;
 }

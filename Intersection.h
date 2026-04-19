@@ -19,7 +19,7 @@ class Intersection {
     // traffic lights, implemented as colliding boxes blocking car travel
     sf::FloatRect light_boxes[4]; // 0Top 1Right 2Down 3Left
     bool active_light_directions[4] = {false, false, false, false}; // 0Top 1Right 2Down 3Left
-    short current_green_light_direction; // 0Top 1Right 2Down 3Left
+    short current_green_light_direction; // 0Top yellow, 1Top green, 2Right yellow, 3Right green, 4Down yellow, 5Down green, 6Left yellow, 7Left green
 
     Intersection(int _id, sf::Vector2f _local_position, bool _has_traffic_lights);
 

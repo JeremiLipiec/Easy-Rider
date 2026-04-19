@@ -31,7 +31,7 @@ void Intersection::UpdateGlobalPosition()
         return;
 
     float offset = isize / 2.f;
-    float size   = isize / 3.f;
+    float size = isize / 3.f;
     float thickness = 5.f;
 
     // setup light boxes
@@ -73,10 +73,14 @@ void Intersection::SpawnLightBoxes()
 
     // disable lights check — count all connected roads (both directions)
     int total_roads = 0;
-    if (id >= map_size           && (infra_map[id - map_size][id] == 1 || infra_map[id][id - map_size] == 1)) total_roads++;
-    if (x < map_size - 1         && (infra_map[id + 1][id] == 1        || infra_map[id][id + 1]        == 1)) total_roads++;
-    if (id + map_size < intersection_count && (infra_map[id + map_size][id] == 1 || infra_map[id][id + map_size] == 1)) total_roads++;
-    if (x > 0                    && (infra_map[id - 1][id] == 1        || infra_map[id][id - 1]        == 1)) total_roads++;
+    if (id >= map_size && (infra_map[id - map_size][id] == 1 || infra_map[id][id - map_size] == 1))
+        total_roads++;
+    if (x < map_size - 1 && (infra_map[id + 1][id] == 1 || infra_map[id][id + 1] == 1))
+        total_roads++;
+    if (id + map_size < intersection_count && (infra_map[id + map_size][id] == 1 || infra_map[id][id + map_size] == 1))
+        total_roads++;
+    if (x > 0 && (infra_map[id - 1][id] == 1 || infra_map[id][id - 1] == 1))
+        total_roads++;
 
     if (total_roads <= 2)
     {
@@ -105,13 +109,13 @@ void Intersection::Update()
         do
         {
             current_green_light_direction++;
-            if (current_green_light_direction > 3)
+            if (current_green_light_direction > 7)
                 current_green_light_direction = 0;
-        } while (!active_light_directions[current_green_light_direction]);
+        } while (!active_light_directions[current_green_light_direction / 2]);
 
         _time = 0;
     }
-    _time++;   
+    _time++;
 }
 
 void Intersection::Draw()
@@ -156,8 +160,10 @@ void Intersection::Draw()
             lightShape.setPosition(light_boxes[i].position);
             lightShape.setRadius(4.f);
             lightShape.setPointCount(8);
-            if (current_green_light_direction == i)
+            if (current_green_light_direction / 2 == i && current_green_light_direction % 2 == 1)
                 lightShape.setFillColor(sf::Color::Green);
+            else if (current_green_light_direction / 2 == i && current_green_light_direction % 2 == 0)
+                lightShape.setFillColor(sf::Color::Yellow);
             else
                 lightShape.setFillColor(sf::Color::Red);
             GuiManager::getInstance()->window.draw(lightShape);
