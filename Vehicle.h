@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "Infrastructure.h"
+#include "TrafficLight.h"
 
 using namespace std;
 
@@ -73,8 +74,7 @@ public:
 
     bool PointsCollidingWithCar();
 
-    bool PointsCollidingWithGreenLight(Intersection next_intersection);
-    bool PointsCollidingWithRedOrYellowLight(Intersection next_intersection);
+    TrafficLight PointsCollidingWithLight(Intersection on_intersection);
 
     void CheckRemoveClick();
 };

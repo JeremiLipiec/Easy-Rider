@@ -5,6 +5,7 @@
 #include "Vehicle.h"
 #include "Simulation.h"
 #include "Intersection.h"
+#include "TrafficLight.h"
 #include "GuiManager.h"
 
 using namespace std;
@@ -231,13 +232,22 @@ void Vehicle::Update()
     // set positions of colliding points
     collision_point_front_position = global_position + forward * (car_length / 2.f + 30.f + car_width * (speed - 1));
     collision_point_mask_position = global_position + forward * (car_length / 2.f + 10.f);
-    collision_point_straight_position = global_position + forward * (15.f + car_length * 1.5f + Simulation::getInstance()->infrastructure.intersection_size);
-    collision_point_left_turn_position = global_position + forward * (15.f + car_length * 0.5f + Simulation::getInstance()->infrastructure.intersection_size * 0.75f) + left * (Simulation::getInstance()->infrastructure.intersection_size * 0.5f + car_length);
-    collision_point_right_turn_position = global_position + forward * (15.f + car_length * 0.5f + Simulation::getInstance()->infrastructure.intersection_size * 0.25f) + right * (Simulation::getInstance()->infrastructure.intersection_size * 0.5f + car_length);
 
     // get intersections
     Intersection &next_intersection = Simulation::getInstance()->infrastructure.intersections[next_intersection_id];
     Intersection &current_intersection = Simulation::getInstance()->infrastructure.intersections[current_intersection_id];
+
+    if (!is_turning)
+    {
+        auto &infra = Simulation::getInstance()->infrastructure;
+        float half_is = infra.intersection_size / 2.f;
+        float lane = infra.road_thickness / 4.f;
+        float reach = half_is + car_length;
+        sf::Vector2f center = next_intersection.position;
+        collision_point_straight_position = center + forward * reach + right * lane;
+        collision_point_left_turn_position = center + left * reach + forward * lane;
+        collision_point_right_turn_position = center + right * reach - forward * lane;
+    }
 
     // enforce turning speed limits
     float speed_limit = max_speed;
@@ -250,7 +260,8 @@ void Vehicle::Update()
     }
 
     // stop for red light
-    if (PointsCollidingWithRedOrYellowLight(next_intersection))
+    TrafficLight hit_light = PointsCollidingWithLight(next_intersection);
+    if (hit_light.active && hit_light.color != TrafficLight::Color::Green)
         speed_limit = 0;
 
     // stop for cars in front
@@ -258,17 +269,26 @@ void Vehicle::Update()
         speed_limit = 0;
 
     // dont go into intersection if cannot leave it
-    if (!(bool)boundingBox.findIntersection(next_intersection.boundingBox) && (next_intersection.boundingBox.contains(collision_point_front_position) || PointsCollidingWithGreenLight(next_intersection)))
+    if (!(bool)boundingBox.findIntersection(next_intersection.boundingBox) && (next_intersection.boundingBox.contains(collision_point_front_position) || (hit_light.active && hit_light.color == TrafficLight::Color::Green)))
     {
-        if (turning_direction == 0 && Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_left_turn_position))
-        {   
-            speed_limit = 0;
-        }
-        if (turning_direction == 1 && Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_straight_position))
+        if (turning_direction == 0 &&
+            (Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_left_turn_position - left * car_length * 0.5f) ||
+             Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_left_turn_position) ||
+             Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_left_turn_position + left * car_length * 0.5f)))
         {
             speed_limit = 0;
         }
-        if (turning_direction == 2 && Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_right_turn_position))
+        if (turning_direction == 1 &&
+            (Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_straight_position - forward * car_length * 0.5f) ||
+             Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_straight_position) ||
+             Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_straight_position + forward * car_length * 0.5f)))
+        {
+            speed_limit = 0;
+        }
+        if (turning_direction == 2 &&
+            (Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_right_turn_position - right * car_length * 0.5f) ||
+             Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_right_turn_position) ||
+             Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_right_turn_position + right * car_length * 0.5f)))
         {
             speed_limit = 0;
         }
@@ -362,24 +382,14 @@ void Vehicle::Update()
     collision_point_mask_position = global_position + forward * (car_length / 2.f + 10);
 }
 
-bool Vehicle::PointsCollidingWithGreenLight(Intersection next_intersection)
+TrafficLight Vehicle::PointsCollidingWithLight(Intersection on_intersection)
 {
-    if (!(bool)boundingBox.findIntersection(next_intersection.boundingBox))
+    if (!(bool)boundingBox.findIntersection(on_intersection.boundingBox))
         for (int i = 0; i < 4; i++)
-            if (next_intersection.light_boxes[i].contains(collision_point_front_position) && (next_intersection.current_green_light_direction / 2 == i && next_intersection.current_green_light_direction % 2 == 1))
-                return true;
+            if (on_intersection.traffic_lights[i].active && on_intersection.traffic_lights[i].box.contains(collision_point_front_position))
+                return on_intersection.traffic_lights[i];
 
-    return false;
-}
-
-bool Vehicle::PointsCollidingWithRedOrYellowLight(Intersection next_intersection)
-{
-    if (!(bool)boundingBox.findIntersection(next_intersection.boundingBox))
-        for (int i = 0; i < 4; i++)
-            if (next_intersection.light_boxes[i].contains(collision_point_front_position) && !(next_intersection.current_green_light_direction / 2 == i && next_intersection.current_green_light_direction % 2 == 1))
-                return true;
-
-    return false;
+    return TrafficLight();
 }
 
 void Vehicle::CheckRemoveClick()

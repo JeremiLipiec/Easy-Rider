@@ -58,6 +58,8 @@
 		<Unit filename="Simulation.h" />
 		<Unit filename="Traffic.cpp" />
 		<Unit filename="Traffic.h" />
+		<Unit filename="TrafficLight.cpp" />
+		<Unit filename="TrafficLight.h" />
 		<Unit filename="Vehicle.cpp" />
 		<Unit filename="Vehicle.h" />
 		<Unit filename="main.cpp" />
