@@ -22,4 +22,6 @@ class Traffic{
     void Update();
 
     void Draw();
+
+    bool PointCollidesWithAnyCar(sf::Vector2f point);
 };

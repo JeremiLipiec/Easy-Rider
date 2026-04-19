@@ -37,11 +37,8 @@ void Vehicle::Setup()
 
     auto &infra = Simulation::getInstance()->infrastructure;
     moving_angle = dir.angle();
-    position = current.local_position
-             + dir   * (infra.intersection_size / 2.f + 1.f)
-             + right * (infra.road_thickness / 4.f);
+    position = current.local_position + dir * (infra.intersection_size / 2.f + 1.f) + right * (infra.road_thickness / 4.f);
 }
-
 
 vector<int> Vehicle::CalculatePath()
 {
@@ -98,6 +95,11 @@ vector<int> Vehicle::CalculatePath()
 
 void Vehicle::AdvanceToNextIntersection()
 {
+    if (path.size() < 2)
+    {
+        deleted = true;
+        return;
+    }
     current_intersection_id = path[0];
     next_intersection_id = path[1];
     turning_direction = CalculateTurningDirection();
@@ -149,16 +151,20 @@ void Vehicle::AdvanceToNextIntersection()
             float len1 = v1.length(), len2 = v2.length();
             if (len1 > 0.001f && len2 > 0.001f)
             {
-                v1 /= len1; v2 /= len2;
+                v1 /= len1;
+                v2 /= len2;
                 float dot = v1.x * v2.x + v1.y * v2.y;
                 if (dot < -0.5f)
                     turning_direction = 3;
                 else
                 {
                     float cross = v1.x * v2.y - v1.y * v2.x;
-                    if (cross > 0.f) turning_direction = 2;
-                    else if (cross < 0.f) turning_direction = 0;
-                    else turning_direction = 1;
+                    if (cross > 0.f)
+                        turning_direction = 2;
+                    else if (cross < 0.f)
+                        turning_direction = 0;
+                    else
+                        turning_direction = 1;
                 }
             }
         }
@@ -199,6 +205,7 @@ int Vehicle::CalculateTurningDirection()
 
 void Vehicle::Update()
 {
+    // wait for spawn timer
     if (!is_spawned)
     {
         if (spawn_timer-- > 0)
@@ -207,29 +214,32 @@ void Vehicle::Update()
         if (path.empty())
             return;
         is_spawned = true;
-        sf::Vector2f forward = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
-        sf::Vector2f gpos = position + Simulation::getInstance()->infrastructure.drawing_origin;
-        collision_point_front_position = gpos + forward * (car_length / 2.f + 30.f + 20.f * (speed - 1));
-        return;
     }
 
-    // refresh global bounding box and collision points from current local position
-    {
-        sf::Vector2f gpos = position + Simulation::getInstance()->infrastructure.drawing_origin;
-        sf::RectangleShape temp({car_length, car_width});
-        temp.setOrigin({car_length / 2.f, car_width / 2.f});
-        temp.setPosition(gpos);
-        temp.setRotation(moving_angle);
-        boundingBox = temp.getGlobalBounds();
-        sf::Vector2f fwd = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
-        collision_point_front_position = gpos + fwd * (car_length / 2.f + 30.f + car_width * (speed - 1));
-        collision_point_mask_position  = gpos + fwd * (car_length / 2.f + 10.f);
-    }
+    // set vectors
+    global_position = position + Simulation::getInstance()->infrastructure.drawing_origin;
+    forward = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
+    right = {-forward.y, forward.x};
+    left = {forward.y, -forward.x};
 
+    sf::RectangleShape temp({car_length, car_width});
+    temp.setOrigin({car_length / 2.f, car_width / 2.f});
+    temp.setPosition(global_position);
+    temp.setRotation(moving_angle);
+    boundingBox = temp.getGlobalBounds();
+
+    // set positions of colliding points
+    collision_point_front_position = global_position + forward * (car_length / 2.f + 30.f + car_width * (speed - 1));
+    collision_point_mask_position = global_position + forward * (car_length / 2.f + 10.f);
+    collision_point_straight_position = global_position + forward * (15.f + car_length * 1.5f + Simulation::getInstance()->infrastructure.intersection_size);
+    collision_point_left_turn_position = global_position + forward * (15.f + car_length * 0.5f + Simulation::getInstance()->infrastructure.intersection_size * 0.75f) + left * (Simulation::getInstance()->infrastructure.intersection_size * 0.5f + car_length);
+    collision_point_right_turn_position = global_position + forward * (15.f + car_length * 0.5f + Simulation::getInstance()->infrastructure.intersection_size * 0.25f) + right * (Simulation::getInstance()->infrastructure.intersection_size * 0.5f + car_length);
+
+    // get intersections
     Intersection &next_intersection = Simulation::getInstance()->infrastructure.intersections[next_intersection_id];
     Intersection &current_intersection = Simulation::getInstance()->infrastructure.intersections[current_intersection_id];
 
-    // enforce speed limits
+    // enforce turning speed limits
     float speed_limit = max_speed;
     if (next_intersection.boundingBox.contains(collision_point_front_position) || (bool)boundingBox.findIntersection(next_intersection.boundingBox))
     {
@@ -239,12 +249,39 @@ void Vehicle::Update()
             speed_limit = 0.6f;
     }
 
-    if (PointsCollidingWithRedLight(next_intersection))
+    // stop for red light
+    if (PointsCollidingWithRedOrYellowLight(next_intersection))
         speed_limit = 0;
 
-    if (PointsCollidingWithCar())
+    // stop for cars in front
+    if (Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_front_position))
         speed_limit = 0;
 
+    // dont go into intersection if cannot leave it
+    if (!(bool)boundingBox.findIntersection(next_intersection.boundingBox) && (next_intersection.boundingBox.contains(collision_point_front_position) || PointsCollidingWithGreenLight(next_intersection)))
+    {
+        if (turning_direction == 0 && Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_left_turn_position))
+        {   
+            speed_limit = 0;
+        }
+        if (turning_direction == 1 && Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_straight_position))
+        {
+            speed_limit = 0;
+        }
+        if (turning_direction == 2 && Simulation::getInstance()->traffic.PointCollidesWithAnyCar(collision_point_right_turn_position))
+        {
+            speed_limit = 0;
+        }
+    }
+
+    // dont let cars go through each other
+    for (int i = 0; i < (int)Simulation::getInstance()->traffic.vehicles.size(); i++)
+    {
+        if (Simulation::getInstance()->traffic.vehicles[i].boundingBox.contains(collision_point_mask_position))
+            speed = 0; // not elegant
+    }
+
+    // apply speed after setting speed limit
     if (speed < speed_limit)
         speed += accerleration;
     else if (speed > speed_limit)
@@ -252,14 +289,7 @@ void Vehicle::Update()
     if (speed < 0.f)
         speed = 0.f;
 
-    for (int i = 0; i < (int)Simulation::getInstance()->traffic.vehicles.size(); i++)
-    {
-        if (Simulation::getInstance()->traffic.vehicles[i].boundingBox.contains(collision_point_mask_position))
-            speed = 0;
-    }
-
-    sf::Vector2f forward = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
-
+    // handle intersections
     bool on_intersection = (bool)boundingBox.findIntersection(next_intersection.boundingBox);
     if (on_intersection || (is_turning && turning_direction != 1 && turning_direction != -1))
     {
@@ -271,16 +301,18 @@ void Vehicle::Update()
             entry_point = position; // arc the car center
 
             float road_t = Simulation::getInstance()->infrastructure.road_thickness;
-            if (turning_direction == 0)       turning_radius = 3.f * road_t / 4.f + car_length / 2.f; // left
-            else if (turning_direction == 2)  turning_radius = road_t / 4.f + car_length / 2.f;        // right
-            else                              turning_radius = road_t / 4.f;                            // U-turn
+            if (turning_direction == 0)
+                turning_radius = 3.f * road_t / 4.f + car_length / 2.f; // left
+            else if (turning_direction == 2)
+                turning_radius = road_t / 4.f + car_length / 2.f; // right
+            else
+                turning_radius = road_t / 4.f; // U-turn
         }
 
         if (turning_direction == 1 || turning_direction == -1)
         {
             // straight: just drive forward, no arc
-            position.x += std::cos(entry_angle.asRadians()) * speed;
-            position.y += std::sin(entry_angle.asRadians()) * speed;
+            position += forward * speed;
             moving_angle = entry_angle;
         }
         else
@@ -289,21 +321,23 @@ void Vehicle::Update()
             sf::Vector2f fwd = {std::cos(entry_angle.asRadians()), std::sin(entry_angle.asRadians())};
             sf::Vector2f side;
             if (turning_direction == 2)
-                side = {-fwd.y, fwd.x};  // right
+                side = {-fwd.y, fwd.x}; // right
             else
-                side = {fwd.y, -fwd.x};  // left / U-turn
+                side = {fwd.y, -fwd.x}; // left / U-turn
 
             float arc_length = turning_radius * max_angle;
             turn_t += speed / arc_length;
-            if (turn_t > 1.f) turn_t = 1.f;
+            if (turn_t > 1.f)
+                turn_t = 1.f;
 
             float theta = turn_t * max_angle;
-            position = entry_point
-                + fwd  * (turning_radius * std::sin(theta))
-                + side * (turning_radius * (1.f - std::cos(theta)));
+            position = entry_point + fwd * (turning_radius * std::sin(theta)) + side * (turning_radius * (1.f - std::cos(theta)));
 
             sf::Vector2f dir = fwd * std::cos(theta) + side * std::sin(theta);
             moving_angle = dir.angle();
+            forward = dir;
+            right = {-forward.y, forward.x};
+            left = {forward.y, -forward.x};
         }
 
         if (turn_t >= 1.f && turning_direction != 1 && turning_direction != -1)
@@ -320,38 +354,31 @@ void Vehicle::Update()
             AdvanceToNextIntersection();
         }
 
-        position.x += std::cos(moving_angle.asRadians()) * speed;
-        position.y += std::sin(moving_angle.asRadians()) * speed;
+        position += forward * speed;
     }
 
-    forward = {std::cos(moving_angle.asRadians()), std::sin(moving_angle.asRadians())};
-    sf::Vector2f gpos = position + Simulation::getInstance()->infrastructure.drawing_origin;
-    collision_point_front_position = gpos + forward * (car_length / 2.f + 30.f + car_width * (speed - 1));
-    collision_point_mask_position = gpos + forward * (car_length / 2.f + 10);
+    global_position = position + Simulation::getInstance()->infrastructure.drawing_origin;
+    collision_point_front_position = global_position + forward * (car_length / 2.f + 30.f + car_width * (speed - 1));
+    collision_point_mask_position = global_position + forward * (car_length / 2.f + 10);
 }
 
-bool Vehicle::PointsCollidingWithCar(){
-    for(int i = 0; i < (int)Simulation::getInstance()->traffic.vehicles.size(); i++){
-        if(Simulation::getInstance()->traffic.vehicles[i].boundingBox.contains(collision_point_front_position))
-        {
-            return true;
-        }
-    }
+bool Vehicle::PointsCollidingWithGreenLight(Intersection next_intersection)
+{
+    if (!(bool)boundingBox.findIntersection(next_intersection.boundingBox))
+        for (int i = 0; i < 4; i++)
+            if (next_intersection.light_boxes[i].contains(collision_point_front_position) && (next_intersection.current_green_light_direction / 2 == i && next_intersection.current_green_light_direction % 2 == 1))
+                return true;
+
     return false;
 }
 
-
-bool Vehicle::PointsCollidingWithRedLight(Intersection next_intersection){
+bool Vehicle::PointsCollidingWithRedOrYellowLight(Intersection next_intersection)
+{
     if (!(bool)boundingBox.findIntersection(next_intersection.boundingBox))
-    {
         for (int i = 0; i < 4; i++)
-        {
             if (next_intersection.light_boxes[i].contains(collision_point_front_position) && !(next_intersection.current_green_light_direction / 2 == i && next_intersection.current_green_light_direction % 2 == 1))
-            {
                 return true;
-            }
-        }
-    }
+
     return false;
 }
 
@@ -380,7 +407,8 @@ void Vehicle::Draw()
 
     boundingBox = vehicle_shape.getGlobalBounds();
 
-    if(GuiManager::getInstance()->draw_debug){
+    if (GuiManager::getInstance()->draw_debug)
+    {
         // draw bounding box
         sf::RectangleShape boundingRect;
         boundingRect.setPosition(boundingBox.position);
@@ -404,6 +432,24 @@ void Vehicle::Draw()
         collision_point_shape.setRadius(4.f);
         collision_point_shape.setPointCount(8);
         collision_point_shape.setFillColor(sf::Color::Red);
+        GuiManager::getInstance()->window.draw(collision_point_shape);
+
+        collision_point_shape.setPosition({collision_point_straight_position.x - 4.f, collision_point_straight_position.y - 4.f});
+        collision_point_shape.setRadius(4.f);
+        collision_point_shape.setPointCount(8);
+        collision_point_shape.setFillColor(sf::Color::Yellow);
+        GuiManager::getInstance()->window.draw(collision_point_shape);
+
+        collision_point_shape.setPosition({collision_point_left_turn_position.x - 4.f, collision_point_left_turn_position.y - 4.f});
+        collision_point_shape.setRadius(4.f);
+        collision_point_shape.setPointCount(8);
+        collision_point_shape.setFillColor(sf::Color::Yellow);
+        GuiManager::getInstance()->window.draw(collision_point_shape);
+
+        collision_point_shape.setPosition({collision_point_right_turn_position.x - 4.f, collision_point_right_turn_position.y - 4.f});
+        collision_point_shape.setRadius(4.f);
+        collision_point_shape.setPointCount(8);
+        collision_point_shape.setFillColor(sf::Color::Yellow);
         GuiManager::getInstance()->window.draw(collision_point_shape);
     }
 }

@@ -52,27 +52,6 @@ bool Simulation::LoadMap(const string& path)
 void Simulation::InitTraffic()
 {
     traffic.vehicles.clear();
-    int n = infrastructure.intersection_count;
-    int start_id, end_id;
-
-    for (int i = 0; i < 10; i++) {
-        start_id = rand() % n;
-        end_id = rand() % (n - 1);
-        if (end_id >= start_id) end_id++;
-        traffic.AddCar(start_id, end_id);
-    }
-    for (int i = 0; i < 5; i++) {
-        start_id = rand() % n;
-        end_id = rand() % (n - 1);
-        if (end_id >= start_id) end_id++;
-        traffic.AddBike(start_id, end_id);
-    }
-    for (int i = 0; i < 5; i++) {
-        start_id = rand() % n;
-        end_id = rand() % (n - 1);
-        if (end_id >= start_id) end_id++;
-        traffic.AddBus(start_id, end_id);
-    }
 }
 
 void Simulation::Draw(){

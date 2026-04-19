@@ -50,8 +50,8 @@ void Road::Draw(){
 
     // count vehicles on this road
     int count = 0;
-    for (int i = 0; i < (int)infra.intersection_count; i++)
-        if ((bool)boundingBox.findIntersection(Simulation::getInstance()->traffic.vehicles[i].boundingBox))
+    for (auto &v : Simulation::getInstance()->traffic.vehicles)
+        if (v.is_spawned && (bool)boundingBox.findIntersection(v.boundingBox))
             count++;
 
     // calc road tint
