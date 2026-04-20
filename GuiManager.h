@@ -30,7 +30,7 @@ public:
     sf::Vector2f drag_anchor_mouse;
     sf::Vector2f drag_anchor_origin;
 
-    bool draw_debug = true;
+    bool draw_debug = false;
 
     string program_name = "Easy Rider Jeremi Lipiec 348407";
 
@@ -73,6 +73,3 @@ public:
 
     void DrawMouseCursor();
 };
-
-
-

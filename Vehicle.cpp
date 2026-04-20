@@ -37,14 +37,14 @@ void Vehicle::Setup()
     dir = dir / dir.length();
     sf::Vector2f right = {-dir.y, dir.x};
 
-    auto &infra = Simulation::getInstance()->infrastructure;
+    Infrastructure &infra = Simulation::getInstance()->infrastructure;
     moving_angle = dir.angle();
     position = current.local_position + dir * (infra.intersection_size / 2.f + 1.f) + right * (infra.road_thickness / 4.f);
 }
 
 vector<int> Vehicle::CalculatePath()
 {
-    auto &infra = Simulation::getInstance()->infrastructure;
+    Infrastructure &infra = Simulation::getInstance()->infrastructure;
     int n = infra.intersection_count;
 
     vector<float> dist(n, 99999999);
@@ -112,7 +112,7 @@ void Vehicle::AdvanceToNextIntersection()
     // heading to last intersection — recalculate now so turning_direction is correct on arrival
     if (path.size() == 1)
     {
-        auto &infra = Simulation::getInstance()->infrastructure;
+        Infrastructure &infra = Simulation::getInstance()->infrastructure;
         int prev = current_intersection_id;
         start_intersection_id = next_intersection_id;
         finish_intersection_id = rand() % (infra.intersection_count - 1);
@@ -240,7 +240,7 @@ void Vehicle::Update()
 
     if (!is_turning)
     {
-        auto &infra = Simulation::getInstance()->infrastructure;
+        Infrastructure &infra = Simulation::getInstance()->infrastructure;
         float half_is = infra.intersection_size / 2.f;
         float lane = infra.road_thickness / 4.f;
         float reach = half_is + car_length;
@@ -408,6 +408,34 @@ void Vehicle::Draw()
         return;
 
     sf::Vector2f global_pos = position + Simulation::getInstance()->infrastructure.drawing_origin;
+
+    // draw headlight cones
+    const float cone_length = 90.f;
+    const float cone_end_width = 50.f;
+
+    sf::VertexArray cone(sf::PrimitiveType::TriangleFan, 3);
+
+    sf::Vector2f start_pos = global_pos + forward * (car_length / 2.f) + right * (car_width / 4.f);
+    
+    cone[0].position = start_pos;
+    cone[0].color = sf::Color(255, 255, 180, 60);
+    cone[1].position = start_pos + forward * cone_length + right * (cone_end_width / 2.f);
+    cone[1].color = sf::Color(255, 255, 180, 0);
+    cone[2].position = start_pos + forward * cone_length + left * (cone_end_width / 2.f);
+    cone[2].color = sf::Color(255, 255, 180, 0);
+
+    GuiManager::getInstance()->window.draw(cone);
+
+    start_pos = global_pos + forward * (car_length / 2.f) + left * (car_width / 4.f);
+
+    cone[0].position = start_pos;
+    cone[0].color = sf::Color(255, 255, 180, 60);
+    cone[1].position = start_pos + forward * cone_length + right * (cone_end_width / 2.f);
+    cone[1].color = sf::Color(255, 255, 180, 0);
+    cone[2].position = start_pos + forward * cone_length + left * (cone_end_width / 2.f);
+    cone[2].color = sf::Color(255, 255, 180, 0);
+
+    GuiManager::getInstance()->window.draw(cone);
 
     // draw the vehicle
     sf::Sprite vehicle_sprite(texture);

@@ -39,7 +39,7 @@ void Road::UpdateGlobalPosition()
 }
 
 void Road::Draw(){
-    auto &infra = Simulation::getInstance()->infrastructure;
+    Infrastructure &infra = Simulation::getInstance()->infrastructure;
     float thickness = infra.road_thickness;
     bool one_way = (infra.infrastructure_map[intersection_b_id][intersection_a_id] == 0);
 
@@ -50,7 +50,7 @@ void Road::Draw(){
 
     // count vehicles on this road
     int count = 0;
-    for (auto &v : Simulation::getInstance()->traffic.vehicles)
+    for (Vehicle &v : Simulation::getInstance()->traffic.vehicles)
         if (v.is_spawned && (bool)boundingBox.findIntersection(v.boundingBox))
             count++;
 

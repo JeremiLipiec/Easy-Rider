@@ -35,7 +35,7 @@ void Intersection::SpawnLightBoxes()
 {
     int map_size = Simulation::getInstance()->infrastructure.map_size;
     int intersection_count = Simulation::getInstance()->infrastructure.intersection_count;
-    auto &infra_map = Simulation::getInstance()->infrastructure.infrastructure_map;
+    vector<vector<int>> &infra_map = Simulation::getInstance()->infrastructure.infrastructure_map;
 
     int x = id % map_size;
 

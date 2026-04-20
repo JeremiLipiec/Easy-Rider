@@ -121,15 +121,15 @@ void GuiManager::DrawMainMenu()
     sf::Text info_credit(font_object);
     info_credit.setCharacterSize(16);
     info_credit.setFillColor(sf::Color(160, 170, 190));
-    info_credit.setString("Created by Jeremi Lipiec for the Advanced C++ course.");
+    info_credit.setString("Created by Jeremi Lipiec for the Advanced C++ course on PW.");
     info_credit.setPosition({box_x + 24.f, box_y + 48.f});
     window.draw(info_credit);
 
     vector<pair<string, string>> info_lines = {
-        {"Traffic simulation", "Simulate road traffic in real time. Vehicles find the shortest path between intersections using Dijkstra's algorithm and respect traffic lights and one-way roads."},
-        {"Loading map files", "Type a file path or click 'Load file' to open a file browser and select a .ezrdr graph file. The simulation reloads instantly with the new road network."},
-        {"Creating map files", "Map files are plain-text adjacency matrices in CSV format. Each row i and column j holds 1 if a road exists from intersection i to j, or 0 otherwise. One-way roads are encoded by setting only one direction to 1."},
-        {"Spawning vehicles", "During simulation, click any intersection on the map to instantly spawn a random vehicle (car, bike or bus) there. It will immediately find a path to a random destination and join the traffic."},
+        {"Traffic simulation", "Simulate traffic in real time. Vehicles randomize their destination intersection, find path to the destination using Dijkstra's algorithm and drive respecting traffic lights and one-way roads."},
+        {"Loading map files", "Click 'Load file' button to select a graph file."},
+        {"Creating map files", "Map files are adjacency matrices in CSV format. Each row i and column j holds 1 if a road exists from intersection i to j, or 0 otherwise."},
+        {"Spawning vehicles", "During simulation, click any intersection to spawn a random vehicle (car, bike or bus) there. It will join the traffic."},
     };
 
     float line_y = box_y + 82.f;
@@ -196,13 +196,13 @@ void GuiManager::DrawMainMenu()
 
 void GuiManager::DrawSimulation()
 {
-    auto &traffic = Simulation::getInstance()->traffic;
+    Traffic &traffic = Simulation::getInstance()->traffic;
 
     // stats
     int total = (int)traffic.vehicles.size();
     int active = 0;
     float avg_spd = 0.f;
-    for (auto &v : traffic.vehicles)
+    for (Vehicle &v : traffic.vehicles)
     {
         if (v.is_spawned)
         {
@@ -238,11 +238,17 @@ void GuiManager::DrawSimulation()
 
     // speed button
     sim_speed_btn_rect = {{px + 54.f, py}, {44.f, 36.f}};
-    string speed_label = (sim_speed == speeds[0]) ? "x0.5" : (sim_speed == speeds[1]) ? "x1"
-                                                         : (sim_speed == speeds[2])   ? "x2"
-                                                         : (sim_speed == speeds[3])   ? "x5"
-                                                         : (sim_speed == speeds[4])   ? "x10"
-                                                                                      : "";
+    string speed_label;
+    if (sim_speed == speeds[0])
+        speed_label = "x0.5";
+    else if (sim_speed == speeds[1])
+        speed_label = "x1";
+    else if (sim_speed == speeds[2])
+        speed_label = "x2";
+    else if (sim_speed == speeds[3])
+        speed_label = "x5";
+    else if (sim_speed == speeds[4])
+        speed_label = "x10";
     DrawButton(sim_speed_btn_rect, speed_label, sf::Color(80, 80, 200));
 
     // stop button
@@ -261,28 +267,62 @@ void GuiManager::DrawSimulation()
     stats_title.setString("Statistics");
     stats_title.setPosition({px, py});
     window.draw(stats_title);
-    py += 32.f;
 
-    auto draw_stat = [&](const string &label, const string &value)
-    {
-        sf::Text t(font_object);
-        t.setCharacterSize(17);
-        t.setFillColor(sf::Color(210, 220, 235));
-        t.setString(label + ": " + value);
-        t.setPosition({px, py});
-        window.draw(t);
-        py += 26.f;
-    };
+    sf::Text stats_text(font_object);
+    stats_text.setCharacterSize(17);
+    stats_text.setFillColor(sf::Color(210, 220, 235));
 
-    draw_stat("Vehicles total", to_string(total));
-    draw_stat("Vehicles active", to_string(active));
-    draw_stat("Avg speed", to_string((int)(avg_spd * 10) / 10.f).substr(0, 4));
+    float line_spacing = 26.f;
+
+    stats_text.setString("Vehicles total: " + to_string(total));
+    stats_text.setPosition({px, py += line_spacing + 10.f});
+    window.draw(stats_text);
+
+    stats_text.setString("Vehicles active: " + to_string(active));
+    stats_text.setPosition({px, py += line_spacing});
+    window.draw(stats_text);
+
+    stats_text.setString("Average speed: " + to_string((int)(avg_spd * 10) / 10.f).substr(0, 4));
+    stats_text.setPosition({px, py += line_spacing});
+    window.draw(stats_text);
+
+    stats_text.setString("==== TIPS ====");
+    stats_text.setPosition({px, py += line_spacing * 2.f});
+    window.draw(stats_text);
+
+    stats_text.setString("1. Left mouse button on");
+    stats_text.setPosition({px, py += line_spacing});
+    window.draw(stats_text);
+
+    stats_text.setString("   intersections to spawn");
+    stats_text.setPosition({px, py += line_spacing});
+    window.draw(stats_text);
+
+    stats_text.setString("   vehicles.");
+    stats_text.setPosition({px, py += line_spacing});
+    window.draw(stats_text);
+
+    stats_text.setString("2. Right mouse button on");
+    stats_text.setPosition({px, py += line_spacing});
+    window.draw(stats_text);
+
+    stats_text.setString("   cars to remove them.");
+    stats_text.setPosition({px, py += line_spacing});
+    window.draw(stats_text);
+
+    stats_text.setString("3. Click and drag to");
+    stats_text.setPosition({px, py += line_spacing});
+    window.draw(stats_text);
+
+    stats_text.setString("   move the map.");
+    stats_text.setPosition({px, py += line_spacing});
+    window.draw(stats_text);
 }
 
 void GuiManager::DrawReport()
 {
-    auto *sim = Simulation::getInstance();
-    auto &traffic = sim->traffic;
+    Simulation *sim = Simulation::getInstance();
+    Traffic &traffic = sim->traffic;
 
     sf::Vector2f win(window.getSize());
 
@@ -310,7 +350,7 @@ void GuiManager::DrawReport()
     int total = (int)traffic.vehicles.size();
     int active = 0;
     float avg_spd = 0.f;
-    for (auto &v : traffic.vehicles)
+    for (Vehicle &v : traffic.vehicles)
         if (v.is_spawned)
         {
             active++;
@@ -327,36 +367,60 @@ void GuiManager::DrawReport()
     float py = box_y + 24.f;
     float px = box_x + 30.f;
 
-    auto draw_row = [&](const string &label, const string &value)
-    {
-        sf::Text lbl(font_object);
-        lbl.setCharacterSize(20);
-        lbl.setFillColor(sf::Color(160, 180, 210));
-        lbl.setString(label);
-        lbl.setPosition({px, py});
-        window.draw(lbl);
+    sf::Text row_lbl(font_object);
+    row_lbl.setCharacterSize(20);
+    row_lbl.setFillColor(sf::Color(160, 180, 210));
 
-        sf::Text val(font_object);
-        val.setCharacterSize(20);
-        val.setFillColor(sf::Color::White);
-        val.setString(value);
-        sf::FloatRect vb = val.getLocalBounds();
-        val.setPosition({box_x + box_w - 30.f - vb.size.x - vb.position.x, py});
-        window.draw(val);
+    sf::Text row_val(font_object);
+    row_val.setCharacterSize(20);
+    row_val.setFillColor(sf::Color::White);
 
-        py += 36.f;
+    sf::RectangleShape row_sep({box_w - 60.f, 1.f});
+    row_sep.setFillColor(sf::Color(60, 75, 100));
 
-        sf::RectangleShape sep({box_w - 60.f, 1.f});
-        sep.setPosition({px, py - 8.f});
-        sep.setFillColor(sf::Color(60, 75, 100));
-        window.draw(sep);
-    };
+    row_lbl.setString("Simulation time");
+    row_lbl.setPosition({px, py});
+    window.draw(row_lbl);
+    row_val.setString((mins > 0 ? to_string(mins) + " min " : "") + to_string(secs) + " sec  (" + to_string(ticks) + " ticks)");
+    sf::FloatRect vb = row_val.getLocalBounds();
+    row_val.setPosition({box_x + box_w - 30.f - vb.size.x - vb.position.x, py});
+    window.draw(row_val);
+    py += 36.f;
+    row_sep.setPosition({px, py - 8.f});
+    window.draw(row_sep);
 
-    draw_row("Simulation time",
-             (mins > 0 ? to_string(mins) + " min " : "") + to_string(secs) + " sec  (" + to_string(ticks) + " ticks)");
-    draw_row("Vehicles in simulation", to_string(total));
-    draw_row("Average speed", to_string(avg_spd).substr(0, 4));
-    draw_row("Completed journeys", to_string(traffic.completed_journeys));
+    row_lbl.setString("Vehicles in simulation");
+    row_lbl.setPosition({px, py});
+    window.draw(row_lbl);
+    row_val.setString(to_string(total));
+    vb = row_val.getLocalBounds();
+    row_val.setPosition({box_x + box_w - 30.f - vb.size.x - vb.position.x, py});
+    window.draw(row_val);
+    py += 36.f;
+    row_sep.setPosition({px, py - 8.f});
+    window.draw(row_sep);
+
+    row_lbl.setString("Average speed");
+    row_lbl.setPosition({px, py});
+    window.draw(row_lbl);
+    row_val.setString(to_string(avg_spd).substr(0, 4));
+    vb = row_val.getLocalBounds();
+    row_val.setPosition({box_x + box_w - 30.f - vb.size.x - vb.position.x, py});
+    window.draw(row_val);
+    py += 36.f;
+    row_sep.setPosition({px, py - 8.f});
+    window.draw(row_sep);
+
+    row_lbl.setString("Completed journeys");
+    row_lbl.setPosition({px, py});
+    window.draw(row_lbl);
+    row_val.setString(to_string(traffic.completed_journeys));
+    vb = row_val.getLocalBounds();
+    row_val.setPosition({box_x + box_w - 30.f - vb.size.x - vb.position.x, py});
+    window.draw(row_val);
+    py += 36.f;
+    row_sep.setPosition({px, py - 8.f});
+    window.draw(row_sep);
 
     // bottom buttons
     float btn_w = 180.f, btn_h = 44.f;
@@ -394,7 +458,7 @@ void GuiManager::Update()
     // drag only on simulation screen
     if (active_screen == 1)
     {
-        auto &origin = Simulation::getInstance()->infrastructure.drawing_origin;
+        sf::Vector2f &origin = Simulation::getInstance()->infrastructure.drawing_origin;
         bool mouse_down = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
         if (mouse_down && !is_dragging)
@@ -414,13 +478,13 @@ void GuiManager::Update()
         if (event->is<sf::Event::Closed>())
             window.close();
 
-        if (const auto *resized = event->getIf<sf::Event::Resized>())
+        if (const sf::Event::Resized *resized = event->getIf<sf::Event::Resized>())
             window.setView(sf::View(sf::FloatRect({0.f, 0.f}, sf::Vector2f(resized->size))));
 
         // simulation logic
         if (active_screen == 0)
         {
-            if (const auto *clicked = event->getIf<sf::Event::MouseButtonPressed>())
+            if (const sf::Event::MouseButtonPressed *clicked = event->getIf<sf::Event::MouseButtonPressed>())
             {
                 if (clicked->button == sf::Mouse::Button::Left)
                 {
@@ -442,7 +506,7 @@ void GuiManager::Update()
                 }
             }
 
-            if (const auto *typed = event->getIf<sf::Event::TextEntered>())
+            if (const sf::Event::TextEntered *typed = event->getIf<sf::Event::TextEntered>())
             {
                 if (file_path_focused)
                 {
@@ -457,7 +521,7 @@ void GuiManager::Update()
         // main menu logic
         if (active_screen == 1)
         {
-            if (const auto *clicked = event->getIf<sf::Event::MouseButtonPressed>())
+            if (const sf::Event::MouseButtonPressed *clicked = event->getIf<sf::Event::MouseButtonPressed>())
             {
                 if (clicked->button == sf::Mouse::Button::Left)
                 {
@@ -481,7 +545,7 @@ void GuiManager::Update()
                 }
             }
 
-            if (const auto *released = event->getIf<sf::Event::MouseButtonReleased>())
+            if (const sf::Event::MouseButtonReleased *released = event->getIf<sf::Event::MouseButtonReleased>())
             {
                 if (released->button == sf::Mouse::Button::Left)
                 {
@@ -489,10 +553,10 @@ void GuiManager::Update()
                     bool is_click = (delta.x * delta.x + delta.y * delta.y) < 64.f; // < 8px movement
                     if (is_click && mouse_position.x > 220.f)
                     {
-                        auto &infra = Simulation::getInstance()->infrastructure;
-                        auto &traffic = Simulation::getInstance()->traffic;
+                        Infrastructure &infra = Simulation::getInstance()->infrastructure;
+                        Traffic &traffic = Simulation::getInstance()->traffic;
                         int n = infra.intersection_count;
-                        for (auto &i : infra.intersections)
+                        for (Intersection &i : infra.intersections)
                         {
                             if (i.used && i.boundingBox.contains(mouse_position))
                             {
@@ -523,7 +587,7 @@ void GuiManager::Update()
         // report screen logic
         if (active_screen == 2)
         {
-            if (const auto *clicked = event->getIf<sf::Event::MouseButtonPressed>())
+            if (const sf::Event::MouseButtonPressed *clicked = event->getIf<sf::Event::MouseButtonPressed>())
             {
                 if (clicked->button == sf::Mouse::Button::Left)
                 {
@@ -532,12 +596,12 @@ void GuiManager::Update()
 
                     if (rp_export_btn_rect.contains(mouse_position))
                     {
-                        auto *sim = Simulation::getInstance();
-                        auto &traffic = sim->traffic;
+                        Simulation *sim = Simulation::getInstance();
+                        Traffic &traffic = sim->traffic;
                         int total = (int)traffic.vehicles.size();
                         int active = 0;
                         float avg_spd = 0.f;
-                        for (auto &v : traffic.vehicles)
+                        for (Vehicle &v : traffic.vehicles)
                             if (v.is_spawned)
                             {
                                 active++;

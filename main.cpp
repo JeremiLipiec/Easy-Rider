@@ -24,7 +24,7 @@ int main()
 
     while (gui_manager->window.isOpen())
     {
-        gui_manager->window.clear();
+        gui_manager->window.clear(sf::Color(30, 35, 40));
         draw();
         gui_manager->window.display();
     }
@@ -38,7 +38,7 @@ void setup()
     simulation->LoadMap("graphs/graph.ezrdr");
     simulation->InitTraffic();
 
-    for (size_t i = 0; i < 2; i++)
+    for (size_t i = 0; i < 0; i++)
     {
         int random_start_intersection = rand() % simulation->infrastructure.intersection_count;
         int random_end_intersection = rand() % simulation->infrastructure.intersection_count;

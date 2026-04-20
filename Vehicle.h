@@ -56,8 +56,8 @@ public:
     sf::Angle moving_angle;
     sf::FloatRect boundingBox;
 
-    sf::Vector2f forward = {1.f,  0.f};
-    sf::Vector2f right = {0.f,  1.f};
+    sf::Vector2f forward = {1.f, 0.f};
+    sf::Vector2f right = {0.f, 1.f};
     sf::Vector2f left = {0.f, -1.f};
 
     Vehicle(float _max_speed, float _length, float _car_width, float _accerleration, float _breaking_force, int _start_intersection_id, int _finish_intersection_id);
