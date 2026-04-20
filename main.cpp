@@ -38,7 +38,7 @@ void setup()
     simulation->LoadMap("graphs/graph.ezrdr");
     simulation->InitTraffic();
 
-    for (size_t i = 0; i < 40; i++)
+    for (size_t i = 0; i < 2; i++)
     {
         int random_start_intersection = rand() % simulation->infrastructure.intersection_count;
         int random_end_intersection = rand() % simulation->infrastructure.intersection_count;

@@ -1613,7 +1613,7 @@
 1771793814 b:\_studia_szkola\pw\przedmioty\zaawansowane c++\projekt\easyrider\vechicle.h
 	<SFML/Graphics.hpp>
 
-1776632819 source:c:\users\jeremi\desktop\easyrider\main.cpp
+1776712468 source:c:\users\jeremi\desktop\easyrider\main.cpp
 	<SFML/Graphics.hpp>
 	<cstdlib>
 	<ctime>
@@ -1648,7 +1648,7 @@
 	"Bike.h"
 	"Bus.h"
 
-1776632525 c:\users\jeremi\desktop\easyrider\vehicle.h
+1776713150 c:\users\jeremi\desktop\easyrider\vehicle.h
 	<SFML/Graphics.hpp>
 	"Infrastructure.h"
 	"TrafficLight.h"
@@ -1710,13 +1710,13 @@
 	"Intersection.h"
 	<algorithm>
 
-1776438663 c:\users\jeremi\desktop\easyrider\car.h
+1776713234 c:\users\jeremi\desktop\easyrider\car.h
 	"Vehicle.h"
 
-1776438654 c:\users\jeremi\desktop\easyrider\bike.h
+1776713223 c:\users\jeremi\desktop\easyrider\bike.h
 	"Vehicle.h"
 
-1776438658 c:\users\jeremi\desktop\easyrider\bus.h
+1776713228 c:\users\jeremi\desktop\easyrider\bus.h
 	"Vehicle.h"
 
 1776631744 c:\users\jeremi\desktop\easyrider\trafficlight.h

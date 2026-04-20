@@ -23,6 +23,7 @@ Vehicle::Vehicle(float _max_speed, float _car_length, float _car_width, float _a
 
 void Vehicle::Setup()
 {
+    texture.loadFromFile(texture_path);
     speed = 0;
     path = CalculatePath();
     if (path.size() < 2)
@@ -409,13 +410,15 @@ void Vehicle::Draw()
     sf::Vector2f global_pos = position + Simulation::getInstance()->infrastructure.drawing_origin;
 
     // draw the vehicle
-    sf::RectangleShape vehicle_shape({car_length, car_width});
-    vehicle_shape.setOrigin({car_length / 2.f, car_width / 2.f});
-    vehicle_shape.setPosition(global_pos);
-    vehicle_shape.setRotation(moving_angle);
-    GuiManager::getInstance()->window.draw(vehicle_shape);
+    sf::Sprite vehicle_sprite(texture);
+    sf::Vector2u tex_size = texture.getSize();
+    vehicle_sprite.setScale({car_length / (float)tex_size.x, car_width / (float)tex_size.y});
+    vehicle_sprite.setOrigin({tex_size.x / 2.f, tex_size.y / 2.f});
+    vehicle_sprite.setPosition(global_pos);
+    vehicle_sprite.setRotation(moving_angle);
+    GuiManager::getInstance()->window.draw(vehicle_sprite);
 
-    boundingBox = vehicle_shape.getGlobalBounds();
+    boundingBox = vehicle_sprite.getGlobalBounds();
 
     if (GuiManager::getInstance()->draw_debug)
     {

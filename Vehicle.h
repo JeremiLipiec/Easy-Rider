@@ -16,6 +16,8 @@ private:
 
 protected:
     float car_width = 20.f;
+    string texture_path;
+    sf::Texture texture;
 
 private:
     // turning vars
